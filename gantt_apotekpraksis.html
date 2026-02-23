@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apotekpraksis Gantt-plan</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --apotek-primary: #0a5f4e;
+      --apotek-secondary: #1a8f7a;
+      --apotek-accent: #2dd4a8;
+      --farmakoterapi: #d94848;
+      --kommunikasjon: #4878d9;
+      --lovverk: #d9a548;
+      --bg-light: #fafbf9;
+      --bg-dark: #e8f2ef;
+      --text-primary: #1a2e27;
+      --text-secondary: #5a6e67;
+      --border: #c5d9d2;
+      --shadow: rgba(10, 95, 78, 0.08);
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-dark) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* Navigation */
+    .top-nav {
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .nav-brand {
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .nav-link.active {
+      background: white;
+      color: #0f766e;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .nav-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-links {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.25rem;
+      }
+      .nav-link {
+        text-align: center;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+      }
+    }
+
+    .header {
+      margin-bottom: 3rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--apotek-primary), var(--apotek-accent));
+      border-radius: 2px;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: var(--apotek-primary);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .controls {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 24px var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .filter-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--apotek-primary);
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .pill-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 0.6rem 1.2rem;
+      border-radius: 24px;
+      border: 2px solid;
+      background: white;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .pill.active {
+      transform: scale(1.05);
+      box-shadow: 0 4px 16px var(--shadow);
+    }
+
+    .pill.farmakoterapi {
+      border-color: var(--farmakoterapi);
+      color: var(--farmakoterapi);
+    }
+
+    .pill.farmakoterapi.active {
+      background: var(--farmakoterapi);
+      color: white;
+    }
+
+    .pill.kommunikasjon {
+      border-color: var(--kommunikasjon);
+      color: var(--kommunikasjon);
+    }
+
+    .pill.kommunikasjon.active {
+      background: var(--kommunikasjon);
+      color: white;
+    }
+
+    .pill.lovverk {
+      border-color: var(--lovverk);
+      color: var(--lovverk);
+    }
+
+    .pill.lovverk.active {
+      background: var(--lovverk);
+      color: white;
+    }
+
+    .pill.fase {
+      border-color: var(--apotek-primary);
+      color: var(--apotek-primary);
+    }
+
+    .pill.fase.active {
+      background: var(--apotek-primary);
+      color: white;
+    }
+
+    .gantt-container {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px var(--shadow);
+      overflow-x: auto;
+      border: 1px solid var(--border);
+    }
+
+    .gantt-header {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .week-labels {
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      gap: 0.25rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .week-label {
+      padding: 0.5rem 0.25rem;
+      border-radius: 6px;
+      transition: background 0.2s ease;
+    }
+
+    .week-label:hover {
+      background: var(--bg-dark);
+    }
+
+    .gantt-row {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 2rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s ease;
+      animation: fadeIn 0.4s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .gantt-row:hover {
+      background: var(--bg-light);
+    }
+
+    .task-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .task-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    .task-meta {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .task-badge {
+      padding: 0.25rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .task-badge.farmakoterapi {
+      background: rgba(217, 72, 72, 0.15);
+      color: var(--farmakoterapi);
+    }
+
+    .task-badge.kommunikasjon {
+      background: rgba(72, 120, 217, 0.15);
+      color: var(--kommunikasjon);
+    }
+
+    .task-badge.lovverk {
+      background: rgba(217, 165, 72, 0.15);
+      color: var(--lovverk);
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      gap: 0.25rem;
+      height: 60px;
+      align-items: center;
+    }
+
+    .timeline-bar {
+      position: absolute;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: grab;
+      transition: all 0.2s ease;
+      overflow: hidden;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .timeline-bar:active {
+      cursor: grabbing;
+    }
+
+    .timeline-bar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px var(--shadow);
+      z-index: 10;
+    }
+
+    .timeline-bar.farmakoterapi {
+      background: linear-gradient(135deg, var(--farmakoterapi) 0%, #c43838 100%);
+    }
+
+    .timeline-bar.kommunikasjon {
+      background: linear-gradient(135deg, var(--kommunikasjon) 0%, #3860c4 100%);
+    }
+
+    .timeline-bar.lovverk {
+      background: linear-gradient(135deg, var(--lovverk) 0%, #c49038 100%);
+    }
+
+    .timeline-bar.arbeidskrav {
+      background: linear-gradient(135deg, var(--apotek-primary) 0%, var(--apotek-secondary) 100%);
+      height: 44px;
+      font-size: 0.75rem;
+    }
+
+    .timeline-bar.milestone {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+      height: 50px;
+      border: 3px solid white;
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .phase-divider {
+      position: absolute;
+      left: calc(var(--week) * 6.25%);
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--apotek-accent);
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .progress-bar {
+      background: var(--bg-dark);
+      border-radius: 12px;
+      height: 8px;
+      margin-top: 2rem;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--apotek-primary), var(--apotek-accent));
+      border-radius: 12px;
+      transition: width 0.6s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+      );
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 12px var(--shadow);
+      transition: transform 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 24px var(--shadow);
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .legend {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .legend-color {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+    }
+
+    .legend-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .gantt-header,
+      .gantt-row {
+        grid-template-columns: 200px 1fr;
+        gap: 1rem;
+      }
+
+      .controls {
+        padding: 1.5rem;
+      }
+
+      .gantt-container {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    const initialTasks = [
+      // FASE 1: UKE 9-12
+      { id: 1, title: 'Orientering og observasjon', type: 'farmakoterapi', week: 0, duration: 1, fase: 1 },
+      { id: 2, title: 'Studere 30 mest solgte legemidler', type: 'farmakoterapi', week: 0, duration: 2, fase: 1 },
+      { id: 3, title: 'WWHAMM-samtaler', type: 'kommunikasjon', week: 1, duration: 1, fase: 1 },
+      { id: 4, title: 'Grunnleggende lovverk (Apotekloven)', type: 'lovverk', week: 0, duration: 2, fase: 1 },
+      { id: 5, title: 'AK1: Planlegg studieopphold (KI)', type: 'arbeidskrav', week: 1, duration: 1, fase: 1 },
+      { id: 6, title: 'Reseptforskriften og utleveringsgrupper', type: 'lovverk', week: 2, duration: 1, fase: 1 },
+      { id: 7, title: 'Dosejusteringer (grunnleggende)', type: 'farmakoterapi', week: 2, duration: 2, fase: 1 },
+      { id: 8, title: 'Egenomsorg (10 situasjoner)', type: 'kommunikasjon', week: 2, duration: 2, fase: 1 },
+      { id: 9, title: 'Blåreseptordningen', type: 'lovverk', week: 3, duration: 1, fase: 1 },
+
+      // FASE 2: UKE 13-16
+      { id: 10, title: 'Farmakoterapi 3-4 organsystemer', type: 'farmakoterapi', week: 4, duration: 4, fase: 2 },
+      { id: 11, title: 'Farmasøytkontroll (20+ resepter)', type: 'farmakoterapi', week: 4, duration: 2, fase: 2 },
+      { id: 12, title: 'Legemiddelsamtaler (3-5/uke)', type: 'kommunikasjon', week: 4, duration: 4, fase: 2 },
+      { id: 13, title: 'Identifisere 5 LRP', type: 'farmakoterapi', week: 5, duration: 2, fase: 2 },
+      { id: 14, title: 'AK2: Samtale egenomsorg', type: 'arbeidskrav', week: 5, duration: 1, fase: 2 },
+      { id: 15, title: 'Inhalasjonsveiledning', type: 'kommunikasjon', week: 5, duration: 1, fase: 2 },
+      { id: 16, title: 'E-resept og reseptintervensjoner', type: 'lovverk', week: 6, duration: 1, fase: 2 },
+      { id: 17, title: 'Narkotika §5c', type: 'lovverk', week: 6, duration: 1, fase: 2 },
+      { id: 18, title: 'AK5: Etikk (fagkveld 15. april)', type: 'arbeidskrav', week: 6, duration: 1, fase: 2 },
+      { id: 19, title: 'Midtveisvurdering', type: 'milestone', week: 7, duration: 1, fase: 2 },
+
+      // FASE 3: UKE 17-20
+      { id: 20, title: 'Polyfarmasi (5+ legemidler)', type: 'farmakoterapi', week: 8, duration: 2, fase: 3 },
+      { id: 21, title: 'Legemiddelgjennomgang (3 pasienter)', type: 'farmakoterapi', week: 8, duration: 3, fase: 3 },
+      { id: 22, title: 'MI-teknikker', type: 'kommunikasjon', week: 8, duration: 2, fase: 3 },
+      { id: 23, title: 'Dosejusteringer (eGFR, BMI, alder)', type: 'farmakoterapi', week: 9, duration: 2, fase: 3 },
+      { id: 24, title: 'AK3: Informasjonssøk/vurdering', type: 'arbeidskrav', week: 9, duration: 1, fase: 3 },
+      { id: 25, title: 'Veterinærresepter (95%)', type: 'farmakoterapi', week: 9, duration: 2, fase: 3 },
+      { id: 26, title: 'Kommunikasjon med forskrivere (5+)', type: 'kommunikasjon', week: 9, duration: 2, fase: 3 },
+      { id: 27, title: 'Godkjenningsfritak (3-5 stk)', type: 'lovverk', week: 10, duration: 1, fase: 3 },
+      { id: 28, title: 'AK4: Interaksjoner', type: 'arbeidskrav', week: 10, duration: 1, fase: 3 },
+      { id: 29, title: 'HMS og kvalitetssystem', type: 'lovverk', week: 11, duration: 1, fase: 3 },
+
+      // FASE 4: UKE 21-24
+      { id: 30, title: 'Alle terapiområder (selvstendig)', type: 'farmakoterapi', week: 12, duration: 4, fase: 4 },
+      { id: 31, title: 'Komplekse LRP', type: 'farmakoterapi', week: 12, duration: 2, fase: 4 },
+      { id: 32, title: 'AK6: Lovkunnskap', type: 'arbeidskrav', week: 12, duration: 1, fase: 4 },
+      { id: 33, title: 'Veilede kolleger', type: 'kommunikasjon', week: 13, duration: 2, fase: 4 },
+      { id: 34, title: 'Legemiddelmangel', type: 'farmakoterapi', week: 13, duration: 2, fase: 4 },
+      { id: 35, title: 'Yrkesetikk i praksis', type: 'lovverk', week: 14, duration: 2, fase: 4 },
+      { id: 36, title: 'AK7: Reseptvurdering (4 resepter)', type: 'arbeidskrav', week: 14, duration: 1, fase: 4 },
+      { id: 37, title: 'Sluttvurdering', type: 'milestone', week: 15, duration: 1, fase: 4 },
+    ];
+
+    function GanttChart() {
+      const [tasks, setTasks] = useState(initialTasks);
+      const [selectedPillars, setSelectedPillars] = useState(['farmakoterapi', 'kommunikasjon', 'lovverk', 'arbeidskrav', 'milestone']);
+      const [selectedPhases, setSelectedPhases] = useState([1, 2, 3, 4]);
+      const [completedTasks, setCompletedTasks] = useState(new Set());
+
+      const togglePillar = (pillar) => {
+        setSelectedPillars(prev => 
+          prev.includes(pillar) 
+            ? prev.filter(p => p !== pillar)
+            : [...prev, pillar]
+        );
+      };
+
+      const togglePhase = (phase) => {
+        setSelectedPhases(prev =>
+          prev.includes(phase)
+            ? prev.filter(p => p !== phase)
+            : [...prev, phase]
+        );
+      };
+
+      const toggleTaskCompletion = (taskId) => {
+        setCompletedTasks(prev => {
+          const newSet = new Set(prev);
+          if (newSet.has(taskId)) {
+            newSet.delete(taskId);
+          } else {
+            newSet.add(taskId);
+          }
+          return newSet;
+        });
+      };
+
+      const filteredTasks = useMemo(() => {
+        return tasks.filter(task => 
+          selectedPillars.includes(task.type) && 
+          selectedPhases.includes(task.fase)
+        );
+      }, [tasks, selectedPillars, selectedPhases]);
+
+      const stats = useMemo(() => {
+        const total = tasks.length;
+        const completed = completedTasks.size;
+        const progress = Math.round((completed / total) * 100);
+        const currentWeek = Math.min(Math.floor(completed / 2.5), 16);
+        
+        return { total, completed, progress, currentWeek };
+      }, [tasks, completedTasks]);
+
+      const weeks = Array.from({ length: 16 }, (_, i) => i + 9);
+
+      return (
+        <>
+          <nav className="top-nav">
+            <div className="nav-container">
+              <div className="nav-brand">🏥 Praksisplan Apotekpraksis</div>
+              <div className="nav-links">
+                <a href="index.html" className="nav-link">📊 Oversikt</a>
+                <a href="del1_egenomsorg_oppdatert.html" className="nav-link">🏥 Del 1</a>
+                <a href="del2_reseptur.html" className="nav-link">💊 Del 2</a>
+                <a href="del3_arbeidskrav.html" className="nav-link">📝 Del 3</a>
+                <a href="del4_kontinuerlige_aktiviteter.html" className="nav-link">📊 Del 4</a>
+                <a href="del5_apokus.html" className="nav-link">🎓 Del 5</a>
+                <a href="gantt_apotekpraksis.html" className="nav-link active">📅 Gantt</a>
+              </div>
+            </div>
+          </nav>
+
+        <div className="container">
+          <div className="header">
+            <h1>Apotekpraksis Gantt</h1>
+            <p className="subtitle">FAR-2505 & FAR-6306 • Vår 2026 • Uke 9-24</p>
+          </div>
+
+          <div className="controls">
+            <div className="filter-section">
+              <label className="filter-label">Filtrer på pilarer</label>
+              <div className="pill-group">
+                {['farmakoterapi', 'kommunikasjon', 'lovverk', 'arbeidskrav', 'milestone'].map(pillar => (
+                  <button
+                    key={pillar}
+                    className={`pill ${pillar} ${selectedPillars.includes(pillar) ? 'active' : ''}`}
+                    onClick={() => togglePillar(pillar)}
+                  >
+                    {pillar === 'arbeidskrav' ? 'Arbeidskrav' : 
+                     pillar === 'milestone' ? 'Milepæler' :
+                     pillar.charAt(0).toUpperCase() + pillar.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="filter-section">
+              <label className="filter-label">Filtrer på faser</label>
+              <div className="pill-group">
+                {[
+                  { id: 1, name: 'Fase 1: Grunnleggende (Uke 9-12)' },
+                  { id: 2, name: 'Fase 2: Progresjon (Uke 13-16)' },
+                  { id: 3, name: 'Fase 3: Konsolidering (Uke 17-20)' },
+                  { id: 4, name: 'Fase 4: Meistring (Uke 21-24)' }
+                ].map(phase => (
+                  <button
+                    key={phase.id}
+                    className={`pill fase ${selectedPhases.includes(phase.id) ? 'active' : ''}`}
+                    onClick={() => togglePhase(phase.id)}
+                  >
+                    {phase.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="gantt-container">
+            <div className="gantt-header">
+              <div style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Aktivitet</div>
+              <div className="week-labels">
+                {weeks.map(week => (
+                  <div key={week} className="week-label">
+                    {week}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {filteredTasks.map((task, index) => (
+              <div 
+                key={task.id} 
+                className="gantt-row"
+                style={{ animationDelay: `${index * 0.03}s` }}
+              >
+                <div className="task-info">
+                  <div className="task-title">
+                    <input
+                      type="checkbox"
+                      checked={completedTasks.has(task.id)}
+                      onChange={() => toggleTaskCompletion(task.id)}
+                      style={{ marginRight: '0.5rem' }}
+                    />
+                    {task.title}
+                  </div>
+                  <div className="task-meta">
+                    <span className={`task-badge ${task.type}`}>
+                      {task.type}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      Uke {task.week + 9} → {task.week + 9 + task.duration - 1}
+                    </span>
+                  </div>
+                </div>
+                <div className="timeline">
+                  <div
+                    className={`timeline-bar ${task.type}`}
+                    style={{
+                      left: `${(task.week / 16) * 100}%`,
+                      width: `${(task.duration / 16) * 100}%`,
+                      opacity: completedTasks.has(task.id) ? 0.5 : 1,
+                      textDecoration: completedTasks.has(task.id) ? 'line-through' : 'none'
+                    }}
+                  >
+                    {task.duration > 1 ? `${task.duration}u` : ''}
+                  </div>
+                  
+                  {/* Phase dividers */}
+                  {task.id === 1 && (
+                    <>
+                      <div className="phase-divider" style={{ '--week': 4 }}></div>
+                      <div className="phase-divider" style={{ '--week': 8 }}></div>
+                      <div className="phase-divider" style={{ '--week': 12 }}></div>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${stats.progress}%` }}></div>
+          </div>
+
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-value" style={{ color: 'var(--apotek-primary)' }}>
+                {stats.completed}/{stats.total}
+              </div>
+              <div className="stat-label">Fullførte aktiviteter</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value" style={{ color: 'var(--apotek-accent)' }}>
+                {stats.progress}%
+              </div>
+              <div className="stat-label">Totalt framgang</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value" style={{ color: 'var(--apotek-secondary)' }}>
+                Uke {Math.min(9 + stats.currentWeek, 24)}
+              </div>
+              <div className="stat-label">Estimert posisjon</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value" style={{ color: 'var(--farmakoterapi)' }}>
+                {16 - stats.currentWeek}
+              </div>
+              <div className="stat-label">Uker igjen</div>
+            </div>
+          </div>
+
+          <div className="legend">
+            <div className="legend-item">
+              <div className="legend-color" style={{ background: 'linear-gradient(135deg, var(--farmakoterapi), #c43838)' }}></div>
+              <span className="legend-label">Farmakoterapi</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-color" style={{ background: 'linear-gradient(135deg, var(--kommunikasjon), #3860c4)' }}></div>
+              <span className="legend-label">Kommunikasjon</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-color" style={{ background: 'linear-gradient(135deg, var(--lovverk), #c49038)' }}></div>
+              <span className="legend-label">Lovverk</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-color" style={{ background: 'linear-gradient(135deg, var(--apotek-primary), var(--apotek-secondary))' }}></div>
+              <span className="legend-label">Arbeidskrav</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-color" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' }}></div>
+              <span className="legend-label">Milepæler</span>
+            </div>
+          </div>
+        </div>
+        </>
+      );
+    }
+
+    ReactDOM.render(<GanttChart />, document.getElementById('root'));
+  </script>
+</body>
+</html>

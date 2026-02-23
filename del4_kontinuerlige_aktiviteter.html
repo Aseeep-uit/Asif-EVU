@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Praksisplan - Del 4: Kontinuerlige aktiviteter</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2563eb;
+      --secondary: #3b82f6;
+      --accent: #60a5fa;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e0e7ff;
+      --shadow: rgba(37, 99, 235, 0.1);
+      --shadow-lg: rgba(37, 99, 235, 0.15);
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    /* Navigation */
+    .top-nav {
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      margin: -2rem -2rem 2rem -2rem;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .nav-brand {
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .nav-link.active {
+      background: white;
+      color: #0f766e;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .header .subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .main-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 20px var(--shadow-lg);
+      border: 1px solid var(--border);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .section-title h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .section-badge {
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(37, 99, 235, 0.1));
+      border-left: 4px solid var(--primary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .info-box-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .info-box-content {
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .progress-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .progress-card {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(37, 99, 235, 0.1));
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      border: 2px solid var(--border);
+    }
+
+    .progress-value {
+      display: block;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .activity-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .activity-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .activity-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .activity-number {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .activity-info {
+      flex: 1;
+    }
+
+    .activity-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .activity-description {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .activity-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .counter-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .counter-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .counter-btn {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--primary);
+      background: white;
+      color: var(--primary);
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .counter-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .counter-value {
+      min-width: 50px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .week-cell {
+      aspect-ratio: 1;
+      border: 2px solid var(--border);
+      background: white;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .week-cell:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .week-cell.completed {
+      background: linear-gradient(135deg, var(--success), #34d399);
+      color: white;
+      border-color: var(--success);
+    }
+
+    .week-label {
+      font-size: 0.65rem;
+      opacity: 0.8;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .main-card {
+        padding: 1.5rem;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .week-grid {
+        grid-template-columns: repeat(8, 1fr);
+      }
+
+      .nav-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .nav-links {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.25rem;
+      }
+
+      .nav-link {
+        text-align: center;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-container">
+      <div class="nav-brand">🏥 Praksisplan Apotekpraksis</div>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">📊 Oversikt</a>
+        <a href="del1_egenomsorg_oppdatert.html" class="nav-link">🏥 Del 1</a>
+        <a href="del2_reseptur.html" class="nav-link">💊 Del 2</a>
+        <a href="del3_arbeidskrav.html" class="nav-link">📝 Del 3</a>
+        <a href="del4_kontinuerlige_aktiviteter.html" class="nav-link active">📊 Del 4</a>
+        <a href="del5_apokus.html" class="nav-link">🎓 Del 5</a>
+        <a href="gantt_apotekpraksis.html" class="nav-link">📅 Gantt</a>
+      </div>
+    </div>
+  </nav>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    const ACTIVITIES_DATA = [
+      { id: 1, title: 'Brukerutstyr demonstrasjoner', description: 'Demonstrere bruk av medisinsk utstyr som inhalatorer, injeksjonsutstyr, blodtrykksmålere, etc.' },
+      { id: 2, title: 'Medisinstartsamtaler', description: 'Strukturerte samtaler ved oppstart av ny medikasjon.' },
+      { id: 3, title: 'Reseptintervensjoner', description: 'Identifisere og løse legemiddelrelaterte problemer.' },
+      { id: 4, title: 'Legemidler på registreringsfritak', description: 'Håndtere søknader for ikke-registrerte legemidler.' },
+      { id: 5, title: 'Telefonresepter', description: 'Motta og dokumentere resepter via telefon.' },
+      { id: 6, title: 'Månedsoppgjør', description: 'Delta i varetelling og økonomisk avstemming.' },
+      { id: 7, title: 'Holdbarhets-/tellingskontroll', description: 'Systematisk kontroll av vareholdbarhet.' },
+      { id: 8, title: 'Observert vaksinering', description: 'Observere vaksinasjonsprosedyrer.' },
+      { id: 9, title: 'Ordre/ekspedering institusjoner', description: 'Bestillinger til sykehjem og legekontor.' },
+      { id: 10, title: 'LAR ekspedering', description: 'Legemiddelassistert rehabilitering.' },
+      { id: 11, title: 'Tilberedning', description: 'Magistrelle legemidler, mikstur, salver.' },
+      { id: 12, title: 'Kompanjearbeid', description: 'Organisere og pakke legemidler.' },
+      { id: 13, title: 'Multidose/anbrud', description: 'Håndtere multidosepakker.' }
+    ];
+
+    function ContinuousActivities() {
+      const [activities, setActivities] = useState(() => {
+        const saved = localStorage.getItem('continuousActivities');
+        if (saved) {
+          return JSON.parse(saved);
+        }
+        return ACTIVITIES_DATA.map(act => ({ ...act, count: 0, weeksDone: [] }));
+      });
+
+      const updateActivity = (id, updates) => {
+        const newActivities = activities.map(act =>
+          act.id === id ? { ...act, ...updates } : act
+        );
+        setActivities(newActivities);
+        localStorage.setItem('continuousActivities', JSON.stringify(newActivities));
+      };
+
+      const incrementCount = (id) => {
+        const activity = activities.find(a => a.id === id);
+        updateActivity(id, { count: activity.count + 1 });
+      };
+
+      const decrementCount = (id) => {
+        const activity = activities.find(a => a.id === id);
+        if (activity.count > 0) {
+          updateActivity(id, { count: activity.count - 1 });
+        }
+      };
+
+      const toggleWeek = (id, week) => {
+        const activity = activities.find(a => a.id === id);
+        const weeksDone = activity.weeksDone || [];
+        const newWeeksDone = weeksDone.includes(week)
+          ? weeksDone.filter(w => w !== week)
+          : [...weeksDone, week];
+        updateActivity(id, { weeksDone: newWeeksDone });
+      };
+
+      const stats = useMemo(() => {
+        const totalCount = activities.reduce((sum, act) => sum + act.count, 0);
+        const avgPerActivity = Math.round(totalCount / activities.length);
+        const activitiesWithProgress = activities.filter(act => act.count > 0).length;
+        const totalWeeksMarked = activities.reduce((sum, act) => sum + (act.weeksDone?.length || 0), 0);
+        
+        return {
+          totalCount,
+          avgPerActivity,
+          activitiesWithProgress,
+          totalActivities: activities.length,
+          totalWeeksMarked
+        };
+      }, [activities]);
+
+      const exportData = () => {
+        const data = activities.map(act => ({
+          Aktivitet: act.title,
+          Antall: act.count,
+          'Uker gjennomført': (act.weeksDone || []).map(w => w + 9).join(', ')
+        }));
+        
+        const csv = [
+          Object.keys(data[0]).join(';'),
+          ...data.map(row => Object.values(row).join(';'))
+        ].join('\n');
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'kontinuerlige_aktiviteter.csv';
+        link.click();
+      };
+
+      const resetData = () => {
+        if (confirm('Er du sikker på at du vil nullstille alle data? Dette kan ikke angres.')) {
+          const resetActivities = ACTIVITIES_DATA.map(act => ({ ...act, count: 0, weeksDone: [] }));
+          setActivities(resetActivities);
+          localStorage.setItem('continuousActivities', JSON.stringify(resetActivities));
+        }
+      };
+
+      const weeks = Array.from({ length: 16 }, (_, i) => i);
+
+      return (
+        <div className="container">
+          <div className="header">
+            <h1>Praksisplan Apotekpraksis</h1>
+            <p className="subtitle">Vår 2026 • Uke 9-24</p>
+          </div>
+
+          <div className="main-card">
+            <div className="section-header">
+              <div className="section-title">
+                <div className="section-icon">📊</div>
+                <h2>Del 4: Kontinuerlige aktiviteter</h2>
+              </div>
+              <div className="section-badge">{activities.length} aktiviteter</div>
+            </div>
+
+            <div className="info-box">
+              <div className="info-box-title">
+                ℹ️ Om kontinuerlige aktiviteter
+              </div>
+              <div className="info-box-content">
+                Disse aktivitetene skal gjennomføres <strong>løpende gjennom hele praksisperioden</strong> (uke 9-24). 
+                Klikk på ukeboksene for å markere når du har gjennomført aktiviteten, og bruk telleren for å holde oversikt over antall ganger.
+              </div>
+            </div>
+
+            <div className="progress-overview">
+              <div className="progress-card">
+                <span className="progress-value">{stats.totalCount}</span>
+                <span className="progress-label">Totalt gjennomført</span>
+              </div>
+              <div className="progress-card">
+                <span className="progress-value">{stats.avgPerActivity}</span>
+                <span className="progress-label">Snitt per aktivitet</span>
+              </div>
+              <div className="progress-card">
+                <span className="progress-value">{stats.activitiesWithProgress}/{stats.totalActivities}</span>
+                <span className="progress-label">Aktiviteter startet</span>
+              </div>
+              <div className="progress-card">
+                <span className="progress-value">{stats.totalWeeksMarked}</span>
+                <span className="progress-label">Uker markert</span>
+              </div>
+            </div>
+
+            {activities.map(activity => (
+              <div key={activity.id} className="activity-card">
+                <div className="activity-header">
+                  <div className="activity-number">{activity.id}</div>
+                  <div className="activity-info">
+                    <div className="activity-title">{activity.title}</div>
+                    <div className="activity-description">{activity.description}</div>
+                  </div>
+                </div>
+
+                <div className="activity-controls">
+                  <span className="counter-label">Antall ganger:</span>
+                  <div className="counter-controls">
+                    <button className="counter-btn" onClick={() => decrementCount(activity.id)}>−</button>
+                    <div className="counter-value">{activity.count}</div>
+                    <button className="counter-btn" onClick={() => incrementCount(activity.id)}>+</button>
+                  </div>
+                </div>
+
+                <div className="week-grid">
+                  {weeks.map(week => (
+                    <div
+                      key={week}
+                      className={`week-cell ${(activity.weeksDone || []).includes(week) ? 'completed' : ''}`}
+                      onClick={() => toggleWeek(activity.id, week)}
+                    >
+                      <div>{week + 9}</div>
+                      <div className="week-label">Uke</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <div className="action-buttons">
+              <button className="btn btn-primary" onClick={exportData}>
+                📥 Eksporter til CSV
+              </button>
+              <button className="btn btn-secondary" onClick={resetData}>
+                🔄 Nullstill data
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<ContinuousActivities />, document.getElementById('root'));
+  </script>
+</body>
+</html>

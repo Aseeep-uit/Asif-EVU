@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Praksisplan Apotekpraksis - Fullstendig oversikt</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0f766e;
+      --secondary: #14b8a6;
+      --accent: #2dd4bf;
+      --red: #e75c6e;
+      --blue: #4878d9;
+      --purple: #8b5dcf;
+      --gold: #d9a548;
+      --green: #10b981;
+      --bg: #f0fdfa;
+      --bg-card: #ffffff;
+      --text: #134e4a;
+      --text-muted: #6b7280;
+      --border: #ccfbf1;
+      --shadow: rgba(15, 118, 110, 0.1);
+      --shadow-lg: rgba(15, 118, 110, 0.15);
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: linear-gradient(135deg, var(--bg) 0%, #f0f9ff 100%);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    /* Navigation */
+    .top-nav {
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .nav-brand {
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .nav-link.active {
+      background: white;
+      color: #0f766e;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    .hero-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 3rem 2rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 24px;
+      box-shadow: 0 8px 32px var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="white" opacity="0.1"/></svg>');
+      background-size: 50px 50px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-header h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+      margin-bottom: 2rem;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero-stat {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .hero-stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: white;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .hero-stat-label {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Overall Progress */
+    .overall-progress {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 4px 20px var(--shadow-lg);
+      border: 1px solid var(--border);
+    }
+
+    .progress-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .overall-progress-bar {
+      height: 24px;
+      background: var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1rem;
+    }
+
+    .overall-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+      border-radius: 16px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .overall-progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-percentage {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    /* Module Grid */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .module-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px var(--shadow-lg);
+      border: 2px solid var(--border);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .module-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--module-color), var(--module-color-light));
+    }
+
+    .module-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px var(--shadow-lg);
+      border-color: var(--module-color);
+    }
+
+    .module-card.del1 { --module-color: var(--red); --module-color-light: #f87171; }
+    .module-card.del2 { --module-color: var(--blue); --module-color-light: #60a5fa; }
+    .module-card.del3 { --module-color: var(--purple); --module-color-light: #a78bfa; }
+    .module-card.del4 { --module-color: var(--primary); --module-color-light: var(--secondary); }
+    .module-card.del5 { --module-color: var(--gold); --module-color-light: #fbbf24; }
+    .module-card.gantt { --module-color: #0f766e; --module-color-light: #14b8a6; }
+
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+
+    .module-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--module-color), var(--module-color-light));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .module-badge {
+      background: rgba(0, 0, 0, 0.05);
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .module-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .module-description {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .module-progress {
+      margin-bottom: 1rem;
+    }
+
+    .module-progress-bar {
+      height: 12px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .module-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--module-color), var(--module-color-light));
+      border-radius: 8px;
+      transition: width 0.6s ease;
+    }
+
+    .module-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .module-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, var(--module-color), var(--module-color-light));
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 1rem;
+    }
+
+    .module-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Quick Links */
+    .quick-links {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px var(--shadow-lg);
+      border: 1px solid var(--border);
+    }
+
+    .quick-links-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .quick-link-btn {
+      padding: 1rem;
+      background: linear-gradient(135deg, rgba(15, 118, 110, 0.05), rgba(20, 184, 166, 0.05));
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .quick-link-btn:hover {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    /* Timeline */
+    .timeline {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px var(--shadow-lg);
+      border: 1px solid var(--border);
+      margin-top: 2.5rem;
+    }
+
+    .timeline-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .timeline-periods {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 0.5rem;
+    }
+
+    .period-block {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, rgba(15, 118, 110, 0.1), rgba(20, 184, 166, 0.1));
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .period-block:hover {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .period-number {
+      font-size: 1.2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .period-weeks {
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+      .nav-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-links {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.25rem;
+      }
+      .nav-link {
+        text-align: center;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+      }
+      .container {
+        padding: 1rem;
+      }
+
+      .hero-header h1 {
+        font-size: 2rem;
+      }
+
+      .modules-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-periods {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .hero-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    const modules = [
+      {
+        id: 'del1',
+        title: 'Del 1: Egenomsorg',
+        icon: '🏥',
+        description: 'Reseptfrie legemidler, rådgivning og egenomsorg. 32 aktiviteter fordelt på 8 perioder.',
+        totalItems: 32,
+        file: 'del1_egenomsorg_oppdatert.html',
+        storageKey: 'egenomsorgsActivities'
+      },
+      {
+        id: 'del2',
+        title: 'Del 2: Reseptur',
+        icon: '💊',
+        description: 'Reseptpliktige legemidler og farmakoterapi. 41 aktiviteter fordelt på 8 perioder.',
+        totalItems: 41,
+        file: 'del2_reseptur.html',
+        storageKey: 'resepturActivities'
+      },
+      {
+        id: 'del3',
+        title: 'Del 3: Arbeidskrav',
+        icon: '📝',
+        description: '7 obligatoriske arbeidskrav og 2 evalueringer som må være godkjent for eksamen.',
+        totalItems: 9,
+        file: 'del3_arbeidskrav.html',
+        storageKey: null // Uses different storage structure
+      },
+      {
+        id: 'del4',
+        title: 'Del 4: Kontinuerlige aktiviteter',
+        icon: '📊',
+        description: '13 aktiviteter som skal gjennomføres løpende gjennom hele praksisperioden.',
+        totalItems: 13,
+        file: 'del4_kontinuerlige_aktiviteter.html',
+        storageKey: 'continuousActivities'
+      },
+      {
+        id: 'del5',
+        title: 'Del 5: Apokus',
+        icon: '🎓',
+        description: '78 e-læringskurs organisert tematisk etter de 8 periodene i praksisplanen.',
+        totalItems: 78,
+        file: 'del5_apokus.html',
+        storageKey: 'apokusCourses'
+      },
+      {
+        id: 'gantt',
+        title: 'Gantt-diagram',
+        icon: '📅',
+        description: 'Visuell tidslinje over alle aktiviteter og arbeidskrav gjennom praksisperioden.',
+        totalItems: 37,
+        file: 'gantt_apotekpraksis.html',
+        storageKey: 'ganttCompletedTasks'
+      }
+    ];
+
+    function Dashboard() {
+      const [moduleProgress, setModuleProgress] = useState({});
+
+      // Calculate progress for each module
+      useMemo(() => {
+        const progress = {};
+        
+        modules.forEach(module => {
+          if (module.storageKey) {
+            const data = localStorage.getItem(module.storageKey);
+            if (data) {
+              try {
+                const parsed = JSON.parse(data);
+                let completed = 0;
+                
+                // Del 1 & Del 2: Set of "periodId-activityIndex" strings
+                if (module.id === 'del1' || module.id === 'del2') {
+                  completed = parsed.length; // It's an array from the Set
+                }
+                // Del 3: Set of task IDs
+                else if (module.id === 'del3') {
+                  const arbeidskravData = localStorage.getItem('arbeidskravCompleted');
+                  if (arbeidskravData) {
+                    completed = JSON.parse(arbeidskravData).length;
+                  }
+                }
+                // Del 4: Array of activities with count
+                else if (module.id === 'del4') {
+                  // Count activities that have been done at least once
+                  completed = parsed.filter(item => item.count > 0).length;
+                }
+                // Del 5: Set of course codes
+                else if (module.id === 'del5') {
+                  completed = parsed.length; // Array from Set
+                }
+                // Gantt: Set of completed task IDs
+                else if (module.id === 'gantt') {
+                  completed = parsed.length; // Array from Set
+                }
+                
+                progress[module.id] = {
+                  completed,
+                  total: module.totalItems,
+                  percentage: Math.round((completed / module.totalItems) * 100)
+                };
+              } catch (e) {
+                progress[module.id] = { completed: 0, total: module.totalItems, percentage: 0 };
+              }
+            } else {
+              progress[module.id] = { completed: 0, total: module.totalItems, percentage: 0 };
+            }
+          } else {
+            // Del 3 special handling
+            if (module.id === 'del3') {
+              const arbeidskravData = localStorage.getItem('arbeidskravCompleted');
+              if (arbeidskravData) {
+                try {
+                  const completed = JSON.parse(arbeidskravData).length;
+                  progress[module.id] = {
+                    completed,
+                    total: module.totalItems,
+                    percentage: Math.round((completed / module.totalItems) * 100)
+                  };
+                } catch (e) {
+                  progress[module.id] = { completed: 0, total: module.totalItems, percentage: 0 };
+                }
+              } else {
+                progress[module.id] = { completed: 0, total: module.totalItems, percentage: 0 };
+              }
+            } else {
+              progress[module.id] = { completed: 0, total: module.totalItems, percentage: 0 };
+            }
+          }
+        });
+        
+        setModuleProgress(progress);
+      }, []);
+
+      const overallStats = useMemo(() => {
+        const totalItems = modules.reduce((sum, m) => sum + m.totalItems, 0);
+        const completedItems = Object.values(moduleProgress).reduce((sum, p) => sum + (p.completed || 0), 0);
+        const overallPercentage = Math.round((completedItems / totalItems) * 100);
+        
+        return {
+          totalItems,
+          completedItems,
+          overallPercentage,
+          modulesStarted: Object.values(moduleProgress).filter(p => p.completed > 0).length
+        };
+      }, [moduleProgress]);
+
+      return (
+        <>
+          <nav className="top-nav">
+            <div className="nav-container">
+              <div className="nav-brand">🏥 Praksisplan Apotekpraksis</div>
+              <div className="nav-links">
+                <a href="index.html" className="nav-link active">📊 Oversikt</a>
+                <a href="del1_egenomsorg_oppdatert.html" className="nav-link">🏥 Del 1</a>
+                <a href="del2_reseptur.html" className="nav-link">💊 Del 2</a>
+                <a href="del3_arbeidskrav.html" className="nav-link">📝 Del 3</a>
+                <a href="del4_kontinuerlige_aktiviteter.html" className="nav-link">📊 Del 4</a>
+                <a href="del5_apokus.html" className="nav-link">🎓 Del 5</a>
+                <a href="gantt_apotekpraksis.html" className="nav-link">📅 Gantt</a>
+              </div>
+            </div>
+          </nav>
+
+        <div className="container">
+          <div className="hero-header">
+            <div className="hero-content">
+              <h1>🏥 Praksisplan Apotekpraksis</h1>
+              <p className="hero-subtitle">FAR-2505 & FAR-6306 • Vår 2026 • Uke 9-24</p>
+              
+              <div className="hero-stats">
+                <div className="hero-stat">
+                  <span className="hero-stat-value">{overallStats.completedItems}</span>
+                  <span className="hero-stat-label">Fullført</span>
+                </div>
+                <div className="hero-stat">
+                  <span className="hero-stat-value">{overallStats.totalItems}</span>
+                  <span className="hero-stat-label">Totalt</span>
+                </div>
+                <div className="hero-stat">
+                  <span className="hero-stat-value">{overallStats.overallPercentage}%</span>
+                  <span className="hero-stat-label">Framgang</span>
+                </div>
+                <div className="hero-stat">
+                  <span className="hero-stat-value">{overallStats.modulesStarted}/5</span>
+                  <span className="hero-stat-label">Deler startet</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="overall-progress">
+            <div className="progress-title">📈 Total framgang</div>
+            <div className="overall-progress-bar">
+              <div 
+                className="overall-progress-fill" 
+                style={{ width: `${overallStats.overallPercentage}%` }}
+              />
+            </div>
+            <div className="progress-percentage">
+              {overallStats.completedItems} / {overallStats.totalItems} elementer fullført
+            </div>
+          </div>
+
+          <div className="modules-grid">
+            {modules.map(module => {
+              const progress = moduleProgress[module.id] || { completed: 0, total: module.totalItems, percentage: 0 };
+              
+              return (
+                <div key={module.id} className={`module-card ${module.id}`}>
+                  <div className="module-header">
+                    <div className="module-icon">{module.icon}</div>
+                    <div className="module-badge">{module.totalItems} elementer</div>
+                  </div>
+                  
+                  <h2 className="module-title">{module.title}</h2>
+                  <p className="module-description">{module.description}</p>
+                  
+                  <div className="module-progress">
+                    <div className="module-progress-bar">
+                      <div 
+                        className="module-progress-fill" 
+                        style={{ width: `${progress.percentage}%` }}
+                      />
+                    </div>
+                    <div className="module-stats">
+                      <span>{progress.completed} / {progress.total} fullført</span>
+                      <span>{progress.percentage}%</span>
+                    </div>
+                  </div>
+                  
+                  <a href={module.file} className="module-link" target="_blank" rel="noopener noreferrer">
+                    Åpne {module.title} →
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="quick-links">
+            <div className="quick-links-title">
+              🔗 Hurtiglenker
+            </div>
+            <div className="links-grid">
+              <a href="del1_egenomsorg_oppdatert.html" className="quick-link-btn" target="_blank" rel="noopener noreferrer">
+                🏥 Egenomsorg
+              </a>
+              <a href="del2_reseptur.html" className="quick-link-btn" target="_blank" rel="noopener noreferrer">
+                💊 Reseptur
+              </a>
+              <a href="del3_arbeidskrav.html" className="quick-link-btn" target="_blank" rel="noopener noreferrer">
+                📝 Arbeidskrav
+              </a>
+              <a href="del4_kontinuerlige_aktiviteter.html" className="quick-link-btn" target="_blank" rel="noopener noreferrer">
+                📊 Kontinuerlige
+              </a>
+              <a href="del5_apokus.html" className="quick-link-btn" target="_blank" rel="noopener noreferrer">
+                🎓 Apokus
+              </a>
+              <a href="gantt_apotekpraksis.html" className="quick-link-btn" target="_blank" rel="noopener noreferrer">
+                📅 Gantt-diagram
+              </a>
+            </div>
+          </div>
+
+          <div className="timeline">
+            <div className="timeline-title">📅 Praksisperioder</div>
+            <div className="timeline-periods">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(period => (
+                <div key={period} className="period-block">
+                  <div className="period-number">P{period}</div>
+                  <div className="period-weeks">
+                    Uke {period * 2 + 7}-{period * 2 + 8}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        </>
+      );
+    }
+
+    ReactDOM.render(<Dashboard />, document.getElementById('root'));
+  </script>
+</body>
+</html>

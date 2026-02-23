@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Praksisplan - Del 5: Apokus</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+
+    /* Navigation Bar */
+    .top-nav {
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .nav-brand {
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .nav-link.active {
+      background: white;
+      color: #0f766e;
+    }
+
+    @media (max-width: 768px) {
+      .nav-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-links {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.25rem;
+      }
+      .nav-link {
+        text-align: center;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+      }
+    }
+
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #7c3aed;
+      --secondary: #8b5cf6;
+      --accent: #a78bfa;
+      --success: #10b981;
+      --bg: #faf5ff;
+      --bg-card: #ffffff;
+      --text: #1e1b4b;
+      --text-muted: #6b7280;
+      --border: #e9d5ff;
+      --shadow: rgba(124, 58, 237, 0.1);
+      --shadow-lg: rgba(124, 58, 237, 0.15);
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .header .subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Main Card */
+    .main-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 20px var(--shadow-lg);
+      border: 1px solid var(--border);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .section-title h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .section-badge {
+      background: rgba(124, 58, 237, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* Progress Section */
+    .progress-section {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.05), rgba(124, 58, 237, 0.1));
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .progress-label {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .progress-percentage {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .progress-bar-container {
+      height: 16px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-item {
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Filter Controls */
+    .filter-controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--border);
+      background: white;
+      color: var(--text);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-family: 'Manrope', sans-serif;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.2rem;
+    }
+
+    /* Period Sections */
+    .period-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .period-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 1.25rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .period-header:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px var(--shadow-lg);
+    }
+
+    .period-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .period-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* Course Grid */
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .course-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .course-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .course-card.completed {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.1));
+      border-color: var(--success);
+    }
+
+    .course-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+
+    .course-code {
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--primary);
+      font-family: monospace;
+    }
+
+    .course-checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      accent-color: var(--success);
+    }
+
+    .course-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .completed-badge {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: var(--success);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    /* Collapse/Expand Animation */
+    .course-grid {
+      max-height: 5000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .course-grid.collapsed {
+      max-height: 0;
+    }
+
+    .expand-icon {
+      transition: transform 0.3s ease;
+    }
+
+    .expand-icon.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .main-card {
+        padding: 1.5rem;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .course-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    const coursesData = [
+      {
+        period: 1,
+        title: "Periode 1: Smerte, feber og infeksjoner (Uke 9-10)",
+        courses: [
+          { code: "AP128", title: "Regelverk og håndtering av medisinsk utstyr" },
+          { code: "AP131", title: "Lover og regler i selvvalget" },
+          { code: "AP136", title: "Etiketter" },
+          { code: "AP117", title: "Informasjonssikkerhet og personvern" },
+          { code: "AP127", title: "Kvalitetsarbeid i apotek" },
+          { code: "BL101", title: "Ung kunde - smertestillende legemidler" },
+          { code: "BL102", title: "Ung kunde – kommunikasjon" },
+          { code: "BL103", title: "Tett nese" },
+          { code: "BL104", title: "Tett nese – kundesituasjoner" },
+          { code: "IN119", title: "Forkjølelse og egenomsorg" },
+          { code: "IN121", title: "Slimhinneavsvellende nesespray" },
+          { code: "IN122", title: "Antibiotika" },
+          { code: "IN223", title: "Riktig antibiotikabruk" },
+          { code: "SM107", title: "Smerte og egenomsorg" }
+        ]
+      },
+      {
+        period: 2,
+        title: "Periode 2: Hjerte-kar og mage/tarm (Uke 11-12)",
+        courses: [
+          { code: "AP141", title: "Journalføring i apotek" },
+          { code: "AP146", title: "Journalføring av tjenester" },
+          { code: "AP206", title: "Den gode Medisinstartsamtalen" },
+          { code: "AP245", title: "Medisinstart" },
+          { code: "BL105", title: "Treg mage – kundesituasjoner" },
+          { code: "MA112", title: "Forstoppelse og egenomsorg" },
+          { code: "HJ117", title: "Kolesterolsenkende legemidler" },
+          { code: "HJ118", title: "Blodtrykkssenkende legemidler" },
+          { code: "HJ119", title: "Blodfortynnende legemidler" },
+          { code: "HJ124", title: "Hjertesvikt" },
+          { code: "HJ220", title: "Blodfortynnende behandling" },
+          { code: "HJ221", title: "Blodtrykkssenkende behandling" },
+          { code: "HJ222", title: "Kolesterolsenkende behandling" },
+          { code: "HJ223", title: "Iskemisk hjertesykdom" }
+        ]
+      },
+      {
+        period: 3,
+        title: "Periode 3: Kosthold, ernæring og diabetes (Uke 13-14)",
+        courses: [
+          { code: "ER107", title: "Jerntilskudd" },
+          { code: "ER108", title: "Kosttilskudd" },
+          { code: "HO121", title: "Diabetes" },
+          { code: "HO220", title: "Diabetes og farmakoterapi" },
+          { code: "IK105", title: "Alkohol og legemidler" },
+          { code: "IK202", title: "Interaksjonsmekanismer" },
+          { code: "IK204", title: "Interaksjonshåndtering" },
+          { code: "MU112", title: "Biologiske legemidler" }
+        ]
+      },
+      {
+        period: 4,
+        title: "Periode 4: Hud og alternative behandlinger (Uke 15-16)",
+        courses: [
+          { code: "HU110", title: "Akne" },
+          { code: "HU111", title: "Atopisk eksem" },
+          { code: "HU112", title: "Solpleie" }
+        ]
+      },
+      {
+        period: 5,
+        title: "Periode 5: Allergi og luftveier (Uke 17-18)",
+        courses: [
+          { code: "AL102", title: "Pollenallergi og egenomsorg" },
+          { code: "AL103", title: "Anafylaksi" },
+          { code: "AP116", title: "Inhalasjonsveiledning på 1-2-3" },
+          { code: "AP215", title: "Inhalasjonsveiledning" },
+          { code: "SR103", title: "Sårbehandling" },
+          { code: "ØY102", title: "Tørre øyne" }
+        ]
+      },
+      {
+        period: 6,
+        title: "Periode 6: Psykiatri og LAR (Uke 19-20)",
+        courses: [
+          { code: "AP132", title: "LAR i apotek" },
+          { code: "NE118", title: "Depresjon" },
+          { code: "NE120", title: "Søvnvansker" },
+          { code: "NE124", title: "Parkinsons sykdom" },
+          { code: "NE126", title: "Angst" },
+          { code: "NE128", title: "Migrene" },
+          { code: "NE131", title: "Demens" },
+          { code: "NE133", title: "Bilkjøring og legemidler" },
+          { code: "NE219", title: "Antidepressiva og farmakoterapi" },
+          { code: "NE223", title: "Legemiddelbehandling ved overvekt og fedme" },
+          { code: "NE225", title: "Parkinsons sykdom og farmakoterapi" },
+          { code: "NE227", title: "Angst og farmakoterapi" },
+          { code: "NE229", title: "Migrene og farmakoterapi" },
+          { code: "NE230", title: "LAR og farmakoterapi" }
+        ]
+      },
+      {
+        period: 7,
+        title: "Periode 7: Vaksinasjon, pediatri og graviditet (Uke 21-22)",
+        courses: [
+          { code: "AP129", title: "Vaksinasjon i apotek" },
+          { code: "AP130", title: "Førstehjelp i apotek" },
+          { code: "AP137", title: "Rekonstituering av vaksiner" },
+          { code: "AP138", title: "Subkutan injeksjon" },
+          { code: "IN113", title: "Influensavaksine" },
+          { code: "IN120", title: "Vaksiner" },
+          { code: "IN217", title: "Immunologi ved vaksinasjon" },
+          { code: "IN218", title: "Ulike vaksinetyper" },
+          { code: "BA204", title: "Barn og legemidler" },
+          { code: "GA105", title: "Gravide og ammende" },
+          { code: "GA204", title: "Farmakoterapi hos gravide og ammende" }
+        ]
+      },
+      {
+        period: 8,
+        title: "Periode 8: Geriatri, hormonbehandling og diverse (Uke 23-24)",
+        courses: [
+          { code: "EL111", title: "Eldre og legemidler" },
+          { code: "EL210", title: "Eldre og nyrefunksjon" },
+          { code: "EL212", title: "Eldre og problemlegemidler" },
+          { code: "HO118", title: "Hormonell prevensjon" },
+          { code: "HO120", title: "Overgangsalder" },
+          { code: "HO219", title: "Fertilitetsbehandling" },
+          { code: "UR103", title: "Forstørret prostata" },
+          { code: "VE202", title: "Veterinærmedisin" }
+        ]
+      }
+    ];
+
+    function ApokusCourses() {
+      const [completed, setCompleted] = useState(() => {
+        const saved = localStorage.getItem('apokusCourses');
+        return saved ? new Set(JSON.parse(saved)) : new Set();
+      });
+
+      const [searchTerm, setSearchTerm] = useState('');
+      const [filterCompleted, setFilterCompleted] = useState('all');
+      const [collapsedPeriods, setCollapsedPeriods] = useState(new Set());
+
+      const toggleCourse = (code) => {
+        const newCompleted = new Set(completed);
+        if (newCompleted.has(code)) {
+          newCompleted.delete(code);
+        } else {
+          newCompleted.add(code);
+        }
+        setCompleted(newCompleted);
+        localStorage.setItem('apokusCourses', JSON.stringify([...newCompleted]));
+      };
+
+      const togglePeriod = (periodId) => {
+        const newCollapsed = new Set(collapsedPeriods);
+        if (newCollapsed.has(periodId)) {
+          newCollapsed.delete(periodId);
+        } else {
+          newCollapsed.add(periodId);
+        }
+        setCollapsedPeriods(newCollapsed);
+      };
+
+      const filteredPeriods = useMemo(() => {
+        return coursesData.map(period => {
+          const filteredCourses = period.courses.filter(course => {
+            const matchesSearch = searchTerm === '' ||
+              course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              course.title.toLowerCase().includes(searchTerm.toLowerCase());
+
+            const matchesFilter =
+              filterCompleted === 'all' ||
+              (filterCompleted === 'completed' && completed.has(course.code)) ||
+              (filterCompleted === 'pending' && !completed.has(course.code));
+
+            return matchesSearch && matchesFilter;
+          });
+
+          return {
+            ...period,
+            courses: filteredCourses
+          };
+        }).filter(period => period.courses.length > 0);
+      }, [searchTerm, filterCompleted, completed]);
+
+      const stats = useMemo(() => {
+        const totalCourses = coursesData.reduce((sum, p) => sum + p.courses.length, 0);
+        const completedCount = completed.size;
+        const progress = Math.round((completedCount / totalCourses) * 100);
+        const periodsCompleted = coursesData.filter(period =>
+          period.courses.every(c => completed.has(c.code))
+        ).length;
+
+        return {
+          totalCourses,
+          completedCount,
+          progress,
+          periodsCompleted,
+          totalPeriods: coursesData.length
+        };
+      }, [completed]);
+
+      return (
+        <>
+          <nav className="top-nav">
+            <div className="nav-container">
+              <div className="nav-brand">🏥 Praksisplan Apotekpraksis</div>
+              <div className="nav-links">
+                <a href="index.html" className="nav-link">📊 Oversikt</a>
+                <a href="del1_egenomsorg_oppdatert.html" className="nav-link">🏥 Del 1</a>
+                <a href="del2_reseptur.html" className="nav-link">💊 Del 2</a>
+                <a href="del3_arbeidskrav.html" className="nav-link">📝 Del 3</a>
+                <a href="del4_kontinuerlige_aktiviteter.html" className="nav-link">📊 Del 4</a>
+                <a href="del5_apokus.html" className="nav-link active">🎓 Del 5</a>
+                <a href="gantt_apotekpraksis.html" className="nav-link">📅 Gantt</a>
+              </div>
+            </div>
+          </nav>
+
+        <div className="container">
+          <div className="header">
+            <h1>Praksisplan Apotekpraksis</h1>
+            <p className="subtitle">Vår 2026 • Uke 9-24</p>
+          </div>
+
+          <div className="main-card">
+            <div className="section-header">
+              <div className="section-title">
+                <div className="section-icon">🎓</div>
+                <h2>Del 5: Apokus (E-læringskurs)</h2>
+              </div>
+              <div className="section-badge">{stats.totalCourses} kurs</div>
+            </div>
+
+            <div className="progress-section">
+              <div className="progress-header">
+                <span className="progress-label">Total framgang</span>
+                <span className="progress-percentage">{stats.progress}%</span>
+              </div>
+              <div className="progress-bar-container">
+                <div className="progress-bar-fill" style={{ width: `${stats.progress}%` }}></div>
+              </div>
+              <div className="progress-stats">
+                <div className="stat-item">
+                  <span className="stat-value">{stats.completedCount}/{stats.totalCourses}</span>
+                  <span className="stat-label">Kurs fullført</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{stats.periodsCompleted}/{stats.totalPeriods}</span>
+                  <span className="stat-label">Perioder fullført</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{stats.totalCourses - stats.completedCount}</span>
+                  <span className="stat-label">Kurs gjenstår</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="filter-controls">
+              <div className="search-box">
+                <span className="search-icon">🔍</span>
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Søk etter kurskode eller tittel..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <button
+                className={`filter-btn ${filterCompleted === 'all' ? 'active' : ''}`}
+                onClick={() => setFilterCompleted('all')}
+              >
+                Alle kurs
+              </button>
+              <button
+                className={`filter-btn ${filterCompleted === 'completed' ? 'active' : ''}`}
+                onClick={() => setFilterCompleted('completed')}
+              >
+                Fullført
+              </button>
+              <button
+                className={`filter-btn ${filterCompleted === 'pending' ? 'active' : ''}`}
+                onClick={() => setFilterCompleted('pending')}
+              >
+                Gjenstående
+              </button>
+            </div>
+
+            {filteredPeriods.map(period => (
+              <div key={period.period} className="period-section">
+                <div className="period-header" onClick={() => togglePeriod(period.period)}>
+                  <div className="period-title">
+                    <span className={`expand-icon ${collapsedPeriods.has(period.period) ? 'collapsed' : ''}`}>
+                      ▼
+                    </span>
+                    {period.title}
+                  </div>
+                  <div className="period-badge">
+                    {period.courses.filter(c => completed.has(c.code)).length}/{period.courses.length} fullført
+                  </div>
+                </div>
+                <div className={`course-grid ${collapsedPeriods.has(period.period) ? 'collapsed' : ''}`}>
+                  {period.courses.map(course => (
+                    <div
+                      key={course.code}
+                      className={`course-card ${completed.has(course.code) ? 'completed' : ''}`}
+                      onClick={() => toggleCourse(course.code)}
+                    >
+                      <div className="course-header">
+                        <div className="course-code">{course.code}</div>
+                        <input
+                          type="checkbox"
+                          className="course-checkbox"
+                          checked={completed.has(course.code)}
+                          onChange={() => toggleCourse(course.code)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                      <div className="course-title">{course.title}</div>
+                      {completed.has(course.code) && (
+                        <div className="completed-badge">✓ Fullført</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        </>
+      );
+    }
+
+    ReactDOM.render(<ApokusCourses />, document.getElementById('root'));
+  </script>
+</body>
+</html>

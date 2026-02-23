@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Praksisplan - Del 2: Reseptur</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Navigation Bar */
+    .top-nav {
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .nav-brand {
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .nav-link.active {
+      background: white;
+      color: #0f766e;
+    }
+
+    @media (max-width: 768px) {
+      .nav-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-links {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.25rem;
+      }
+      .nav-link {
+        text-align: center;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+      }
+    }
+
+    :root {
+      --primary: #0f5c48;
+      --secondary: #1a8569;
+      --accent: #26b592;
+      --reseptur: #4878d9;
+      --bg: #f9fafb;
+      --bg-card: #ffffff;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --shadow: rgba(0, 0, 0, 0.05);
+      --shadow-lg: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .header .subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Section Card */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 20px var(--shadow-lg);
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 3px solid var(--reseptur);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--reseptur), #3d62b8);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .section-title h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .section-badge {
+      background: rgba(72, 120, 217, 0.1);
+      color: var(--reseptur);
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* Progress Section */
+    .progress-section {
+      background: linear-gradient(135deg, rgba(72, 120, 217, 0.05), rgba(72, 120, 217, 0.1));
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .progress-label {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .progress-percentage {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--reseptur);
+    }
+
+    .progress-bar-container {
+      height: 16px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--reseptur), #3d62b8);
+      border-radius: 12px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-item {
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--reseptur);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Gantt Chart */
+    .gantt-container {
+      overflow-x: auto;
+      margin-bottom: 2rem;
+    }
+
+    .gantt-grid {
+      display: grid;
+      grid-template-columns: 340px repeat(16, 60px);
+      gap: 0;
+      min-width: 1300px;
+    }
+
+    .gantt-header {
+      display: contents;
+    }
+
+    .header-cell {
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 1rem 0.5rem;
+      border-bottom: 2px solid var(--reseptur);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-cell:first-child {
+      text-align: left;
+      padding-left: 1.5rem;
+    }
+
+    .gantt-row {
+      display: contents;
+    }
+
+    .gantt-row:hover .task-cell,
+    .gantt-row:hover .timeline-cell {
+      background: rgba(72, 120, 217, 0.03);
+    }
+
+    .task-cell {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s ease;
+    }
+
+    .task-checkbox {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: var(--reseptur);
+      flex-shrink: 0;
+    }
+
+    .task-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .task-meta {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .task-week {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .task-period {
+      background: rgba(72, 120, 217, 0.1);
+      color: var(--reseptur);
+      padding: 0.15rem 0.5rem;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .timeline-cell {
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      min-height: 70px;
+      transition: background 0.2s ease;
+    }
+
+    .timeline-bar {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 36px;
+      background: linear-gradient(135deg, var(--reseptur), #3d62b8);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(72, 120, 217, 0.3);
+      padding: 0 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .timeline-bar:hover {
+      transform: translateY(-50%) translateY(-3px);
+      box-shadow: 0 4px 16px rgba(72, 120, 217, 0.4);
+      z-index: 10;
+    }
+
+    .timeline-bar.completed {
+      opacity: 0.4;
+      filter: grayscale(0.6);
+    }
+
+    .period-divider {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--accent);
+      opacity: 0.3;
+    }
+
+    /* Period Summary */
+    .period-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: rgba(72, 120, 217, 0.03);
+      border-radius: 12px;
+    }
+
+    .period-card {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      border-left: 4px solid var(--reseptur);
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .period-card-header {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .period-card-count {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--reseptur);
+      margin-bottom: 0.25rem;
+    }
+
+    .period-card-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 1.5rem;
+      background: rgba(72, 120, 217, 0.05);
+      border-radius: 12px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .legend-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--reseptur), #3d62b8);
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(72, 120, 217, 0.3);
+    }
+
+    .legend-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .section-card {
+        padding: 1.5rem;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .gantt-grid {
+        grid-template-columns: 220px repeat(16, 50px);
+      }
+
+      .progress-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // Data - Del 2: Reseptur
+    // Organisert parallelt med Egenomsorg-periodene
+    const resepturData = [
+      // PERIODE 1 (Uke 9-10): Vanlige plager & infeksjoner
+      { id: 'res1', title: '💊 Smerte - reseptbelagt behandling', week: 0, duration: 2, period: 1 },
+      { id: 'res2', title: '🦠 Infeksjoner og antibiotika', week: 0, duration: 2, period: 1 },
+      { id: 'res3', title: '🌡️ Feber - avansert behandling', week: 0, duration: 2, period: 1 },
+      { id: 'res4', title: '🤧 Øvre luftveisinfeksjoner', week: 1, duration: 1, period: 1 },
+      
+      // PERIODE 2 (Uke 11-12): Hjerte-kar & mage-tarm
+      { id: 'res5', title: '❤️ Hjerte-kar sykdommer', week: 2, duration: 2, period: 2 },
+      { id: 'res6', title: '🫀 Koronar hjertesykdom', week: 2, duration: 2, period: 2 },
+      { id: 'res7', title: '💓 Atrieflimmer', week: 2, duration: 2, period: 2 },
+      { id: 'res8', title: '🩺 Blodtrykksmåling og behandling', week: 2, duration: 2, period: 2 },
+      { id: 'res9', title: '💊 Antikoagulasjon (Marevan/NOAK)', week: 3, duration: 1, period: 2 },
+      { id: 'res10', title: '🫃 Reflukssykdom og magesår', week: 2, duration: 2, period: 2 },
+      { id: 'res11', title: '🔄 Irritabel tarmsyndrom (IBS)', week: 3, duration: 1, period: 2 },
+      
+      // PERIODE 3 (Uke 13-14): Stoffskifte & ernæring
+      { id: 'res12', title: '🩸 Diabetes type 1 og 2', week: 4, duration: 2, period: 3 },
+      { id: 'res13', title: '📊 Blodsukkermåling og insulin', week: 4, duration: 2, period: 3 },
+      { id: 'res14', title: '🩸 Anemi - behandling', week: 4, duration: 2, period: 3 },
+      { id: 'res15', title: '🦴 Skjoldbruskkjertelsykdommer', week: 5, duration: 1, period: 3 },
+      { id: 'res16', title: '💊 Kosttilskudd - regelverk', week: 5, duration: 1, period: 3 },
+      
+      // PERIODE 4 (Uke 15-16): Hud & immunsystemet
+      { id: 'res17', title: '🔴 Psoriasis', week: 6, duration: 2, period: 4 },
+      { id: 'res18', title: '🔴 Atopisk eksem (avansert)', week: 6, duration: 2, period: 4 },
+      { id: 'res19', title: '💊 Akne - reseptbelagt', week: 7, duration: 1, period: 4 },
+      { id: 'res20', title: '🌿 Alternative behandlingsformer', week: 7, duration: 1, period: 4 },
+      
+      // PERIODE 5 (Uke 17-18): Lunger & allergi
+      { id: 'res21', title: '🫁 Astma', week: 8, duration: 2, period: 5 },
+      { id: 'res22', title: '🫁 KOLS', week: 8, duration: 2, period: 5 },
+      { id: 'res23', title: '💨 Inhalasjonsveiledning', week: 8, duration: 2, period: 5 },
+      { id: 'res24', title: '🤧 Allergisk rhinitt - avansert', week: 9, duration: 1, period: 5 },
+      { id: 'res25', title: '⚡ Anafylaksi og adrenalin', week: 9, duration: 1, period: 5 },
+      
+      // PERIODE 6 (Uke 19-20): Psykiatri & smerte
+      { id: 'res26', title: '🧠 Depresjon og angst', week: 10, duration: 2, period: 6 },
+      { id: 'res27', title: '😴 Søvnforstyrrelser - reseptbelagt', week: 10, duration: 2, period: 6 },
+      { id: 'res28', title: '💊 LAR (legemiddelassistert rehab)', week: 10, duration: 2, period: 6 },
+      { id: 'res29', title: '🧠 Psykosebehandling', week: 11, duration: 1, period: 6 },
+      { id: 'res30', title: '🎯 Migrene - avansert', week: 11, duration: 1, period: 6 },
+      
+      // PERIODE 7 (Uke 21-22): Livsløp - barn & gravide
+      { id: 'res31', title: '👶 Pediatri - farmakoterapi', week: 12, duration: 2, period: 7 },
+      { id: 'res32', title: '🤰 Gravide og ammende', week: 12, duration: 2, period: 7 },
+      { id: 'res33', title: '💉 Vaksinasjon - teori og praksis', week: 12, duration: 2, period: 7 },
+      { id: 'res34', title: '🩹 Barnesykdommer', week: 13, duration: 1, period: 7 },
+      
+      // PERIODE 8 (Uke 23-24): Geriatri & hormoner
+      { id: 'res35', title: '👵 Geriatri og polyfarmasi', week: 14, duration: 2, period: 8 },
+      { id: 'res36', title: '🧠 Demens - farmakoterapi', week: 14, duration: 2, period: 8 },
+      { id: 'res37', title: '🦴 Osteoporose', week: 14, duration: 2, period: 8 },
+      { id: 'res38', title: '💊 Hormonbehandling', week: 14, duration: 2, period: 8 },
+      { id: 'res39', title: '💧 Inkontinens/stomi/kateter', week: 15, duration: 1, period: 8 },
+      { id: 'res40', title: '🧬 Nyresvikt - dosejustering', week: 15, duration: 1, period: 8 },
+      { id: 'res41', title: '🐕 Veterinærmedisin', week: 15, duration: 1, period: 8 }
+    ];
+
+    function ResepturSection() {
+      const [completedTasks, setCompletedTasks] = useState(new Set());
+
+      const toggleCompletion = (taskId) => {
+        setCompletedTasks(prev => {
+          const newSet = new Set(prev);
+          if (newSet.has(taskId)) {
+            newSet.delete(taskId);
+          } else {
+            newSet.add(taskId);
+          }
+          return newSet;
+        });
+      };
+
+      const stats = useMemo(() => {
+        const total = resepturData.length;
+        const completed = completedTasks.size;
+        const progress = Math.round((completed / total) * 100);
+        
+        const completedWeeks = Array.from(completedTasks)
+          .map(id => resepturData.find(t => t.id === id)?.week || 0);
+        const avgWeek = completedWeeks.length > 0 
+          ? Math.round(completedWeeks.reduce((a, b) => a + b, 0) / completedWeeks.length) + 9
+          : 9;
+
+        const periodStats = Array.from({length: 8}, (_, i) => {
+          const periodTasks = resepturData.filter(t => t.period === i + 1);
+          const periodCompleted = periodTasks.filter(t => completedTasks.has(t.id)).length;
+          return {
+            period: i + 1,
+            total: periodTasks.length,
+            completed: periodCompleted,
+            percentage: periodTasks.length > 0 ? Math.round((periodCompleted / periodTasks.length) * 100) : 0
+          };
+        });
+
+        return { total, completed, progress, avgWeek, periodStats };
+      }, [completedTasks]);
+
+      const weeks = Array.from({ length: 16 }, (_, i) => i + 9);
+
+      return (
+        <>
+          <nav className="top-nav">
+            <div className="nav-container">
+              <div className="nav-brand">🏥 Praksisplan Apotekpraksis</div>
+              <div className="nav-links">
+                <a href="index.html" className="nav-link">📊 Oversikt</a>
+                <a href="del1_egenomsorg_oppdatert.html" className="nav-link">🏥 Del 1</a>
+                <a href="del2_reseptur.html" className="nav-link active">💊 Del 2</a>
+                <a href="del3_arbeidskrav.html" className="nav-link">📝 Del 3</a>
+                <a href="del4_kontinuerlige_aktiviteter.html" className="nav-link">📊 Del 4</a>
+                <a href="del5_apokus.html" className="nav-link">🎓 Del 5</a>
+                <a href="gantt_apotekpraksis.html" className="nav-link">📅 Gantt</a>
+              </div>
+            </div>
+          </nav>
+
+        <div className="container">
+          <div className="header">
+            <h1>Praksisplan Apotekpraksis</h1>
+            <p className="subtitle">Vår 2026 • Uke 9-24</p>
+          </div>
+
+          <div className="section-card">
+            <div className="section-header">
+              <div className="section-title">
+                <div className="section-icon">💊</div>
+                <h2>Del 2: Reseptur</h2>
+              </div>
+              <div className="section-badge">{resepturData.length} aktiviteter</div>
+            </div>
+
+            {/* Progress Section */}
+            <div className="progress-section">
+              <div className="progress-header">
+                <span className="progress-label">Total framgang</span>
+                <span className="progress-percentage">{stats.progress}%</span>
+              </div>
+              <div className="progress-bar-container">
+                <div className="progress-bar-fill" style={{ width: `${stats.progress}%` }}></div>
+              </div>
+              <div className="progress-stats">
+                <div className="stat-item">
+                  <span className="stat-value">{stats.completed}/{stats.total}</span>
+                  <span className="stat-label">Fullført</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">Uke {stats.avgWeek}</span>
+                  <span className="stat-label">Gj.snitt posisjon</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{stats.total - stats.completed}</span>
+                  <span className="stat-label">Gjenstår</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">
+                    {stats.periodStats.filter(p => p.percentage === 100).length}/8
+                  </span>
+                  <span className="stat-label">Perioder ferdig</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Period Summary */}
+            <div className="period-summary">
+              {stats.periodStats.map(ps => (
+                <div key={ps.period} className="period-card">
+                  <div className="period-card-header">Periode {ps.period}</div>
+                  <div className="period-card-count">{ps.completed}/{ps.total}</div>
+                  <div className="period-card-label">{ps.percentage}% fullført</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Gantt Chart */}
+            <div className="gantt-container">
+              <div className="gantt-grid">
+                {/* Header */}
+                <div className="gantt-header">
+                  <div className="header-cell">Reseptur-tema</div>
+                  {weeks.map(week => (
+                    <div key={week} className="header-cell">{week}</div>
+                  ))}
+                </div>
+
+                {/* Tasks */}
+                {resepturData.map((task, index) => (
+                  <div key={task.id} className="gantt-row">
+                    <div className="task-cell">
+                      <input
+                        type="checkbox"
+                        className="task-checkbox"
+                        checked={completedTasks.has(task.id)}
+                        onChange={() => toggleCompletion(task.id)}
+                      />
+                      <div className="task-info">
+                        <div className="task-title">
+                          {task.title}
+                        </div>
+                        <div className="task-meta">
+                          <span className="task-week">
+                            Uke {task.week + 9}
+                            {task.duration > 1 && `-${task.week + 9 + task.duration - 1}`}
+                          </span>
+                          <span className="task-period">Periode {task.period}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Timeline cells */}
+                    {weeks.map((week, weekIndex) => (
+                      <div key={`${task.id}-${week}`} className="timeline-cell">
+                        {weekIndex === task.week && (
+                          <div
+                            className={`timeline-bar ${completedTasks.has(task.id) ? 'completed' : ''}`}
+                            style={{
+                              left: 0,
+                              width: `${task.duration * 100}%`,
+                            }}
+                            title={task.title}
+                          >
+                            {task.duration > 2 ? task.title.split(' ')[0] : ''}
+                          </div>
+                        )}
+                        {[2, 4, 6, 8, 10, 12, 14].includes(weekIndex) && index === 0 && (
+                          <div className="period-divider"></div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Legend */}
+            <div className="legend">
+              <div className="legend-item">
+                <div className="legend-icon"></div>
+                <span className="legend-label">Reseptur-aktiviteter</span>
+              </div>
+              <div className="legend-item">
+                <div className="period-divider" style={{ position: 'relative', width: '2px', height: '28px', opacity: 0.3 }}></div>
+                <span className="legend-label">Periode-overgang</span>
+              </div>
+              <div className="legend-item">
+                <span style={{ fontSize: '1.2rem' }}>💊🦠❤️🫃🩸🔴🫁🧠👶👵💧🐕</span>
+                <span className="legend-label">Terapiområder</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        </>
+      );
+    }
+
+    ReactDOM.render(<ResepturSection />, document.getElementById('root'));
+  </script>
+</body>
+</html>
