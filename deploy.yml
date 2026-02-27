@@ -1,0 +1,45 @@
+name: Deploy to GitHub Pages med Secrets
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Sett permissions for å skrive til GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Inject GitHub token into HTML files
+        run: |
+          # Erstatt placeholder med faktisk token fra Secrets
+          find . -name "*.html" -type f -exec sed -i "s/GITHUB_TOKEN_PLACEHOLDER/${{ secrets.GITHUB_API_TOKEN }}/g" {} +
+          
+          echo "✅ Token injisert i alle HTML-filer"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        
+      - name: Deployment summary
+        run: |
+          echo "🚀 Deployment fullført!"
+          echo "📍 URL: https://aseeep-uit.github.io/Asif-EVU/"
