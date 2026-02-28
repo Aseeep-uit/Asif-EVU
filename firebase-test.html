@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔥 Firebase Test</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fef3c7;
+    }
+    .test-card {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border-top: 6px solid #f59e0b;
+    }
+    h1 {
+      color: #d97706;
+      margin-bottom: 20px;
+      font-size: 2rem;
+    }
+    .test-item {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border-left: 4px solid #94a3b8;
+    }
+    .test-item.pending {
+      background: #fef3c7;
+      border-color: #f59e0b;
+    }
+    .test-item.success {
+      background: #f0fdf4;
+      border-color: #10b981;
+    }
+    .test-item.error {
+      background: #fef2f2;
+      border-color: #ef4444;
+    }
+    button {
+      background: #d97706;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 10px 5px 10px 0;
+    }
+    button:hover {
+      background: #f59e0b;
+    }
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-card">
+    <h1>🔥 Firebase Tilkoblingstest</h1>
+    <p>Test at Firebase fungerer før deployment</p>
+
+    <div id="init-test" class="test-item">
+      ⏳ Test 1: Initialiserer Firebase...
+    </div>
+
+    <div id="write-test" class="test-item">
+      ⏳ Test 2: Skriver til database...
+    </div>
+
+    <div id="read-test" class="test-item">
+      ⏳ Test 3: Leser fra database...
+    </div>
+
+    <button onclick="runTests()">▶️ Kjør tester</button>
+    <button onclick="location.reload()">🔄 Kjør på nytt</button>
+
+    <div id="results" style="margin-top: 20px;"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL0FDaoMWkp4s8PDGCsTzTbNwGIOFtP9s",
+      authDomain: "asif-praksisplan.firebaseapp.com",
+      databaseURL: "https://asif-praksisplan-default-rtdb.firebaseio.com",
+      projectId: "asif-praksisplan",
+      storageBucket: "asif-praksisplan.firebasestorage.app",
+      messagingSenderId: "409587395940",
+      appId: "1:409587395940:web:cfe7fa9a14cc1b8e16de71",
+      measurementId: "G-XFZ8SQLRHR"
+    };
+
+    async function runTests() {
+      const initTest = document.getElementById('init-test');
+      const writeTest = document.getElementById('write-test');
+      const readTest = document.getElementById('read-test');
+      const results = document.getElementById('results');
+
+      // Test 1: Initialize Firebase
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        initTest.className = 'test-item success';
+        initTest.textContent = '✅ Test 1: Firebase initialisert!';
+      } catch (error) {
+        initTest.className = 'test-item error';
+        initTest.textContent = `❌ Test 1: Init feilet - ${error.message}`;
+        return;
+      }
+
+      // Test 2: Write to database
+      writeTest.className = 'test-item pending';
+      writeTest.textContent = '⏳ Test 2: Skriver testdata...';
+
+      try {
+        const testData = {
+          message: 'Firebase test fra praksisplan',
+          timestamp: new Date().toISOString(),
+          test: true
+        };
+
+        await firebase.database().ref('test/connection').set(testData);
+
+        writeTest.className = 'test-item success';
+        writeTest.textContent = '✅ Test 2: Data skrevet til Firebase!';
+      } catch (error) {
+        writeTest.className = 'test-item error';
+        writeTest.textContent = `❌ Test 2: Skriving feilet - ${error.message}`;
+        return;
+      }
+
+      // Test 3: Read from database
+      readTest.className = 'test-item pending';
+      readTest.textContent = '⏳ Test 3: Leser fra database...';
+
+      try {
+        const snapshot = await firebase.database().ref('test/connection').once('value');
+        const data = snapshot.val();
+
+        if (data && data.message) {
+          readTest.className = 'test-item success';
+          readTest.textContent = '✅ Test 3: Data lest fra Firebase!';
+
+          results.innerHTML = `
+            <h3>🎉 ALLE TESTER BESTÅTT!</h3>
+            <p><strong>Firebase fungerer perfekt!</strong></p>
+            <h4>Data fra database:</h4>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+            <p style="margin-top: 20px;">
+              ✅ Du kan nå deploye til GitHub Pages!<br>
+              ✅ Synkronisering vil fungere automatisk!
+            </p>
+          `;
+        } else {
+          throw new Error('Ingen data funnet');
+        }
+      } catch (error) {
+        readTest.className = 'test-item error';
+        readTest.textContent = `❌ Test 3: Lesing feilet - ${error.message}`;
+      }
+    }
+
+    // Kjør tester automatisk
+    window.addEventListener('load', () => {
+      setTimeout(runTests, 500);
+    });
+  </script>
+</body>
+</html>
