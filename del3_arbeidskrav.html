@@ -557,22 +557,31 @@
     }
   </style>
 
-  <!-- GitHub Sync Configuration -->
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <!-- Firebase Configuration -->
   <script>
-    const GITHUB_CONFIG = {
-      username: 'aseeep-uit',
-      repo: 'Asif-EVU',
-      token: 'GITHUB_TOKEN_PLACEHOLDER',
-      branch: 'main',
-      dataFile: 'data.json'
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL0FDaoMWkp4s8PDGCsTzTbNwGIOFtP9s",
+      authDomain: "asif-praksisplan.firebaseapp.com",
+      databaseURL: "https://asif-praksisplan-default-rtdb.firebaseio.com",
+      projectId: "asif-praksisplan",
+      storageBucket: "asif-praksisplan.firebasestorage.app",
+      messagingSenderId: "409587395940",
+      appId: "1:409587395940:web:cfe7fa9a14cc1b8e16de71",
+      measurementId: "G-XFZ8SQLRHR"
     };
-    const GITHUB_API = {
-      getFile: `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
-      updateFile: `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`
-    };
+    
+    \/\/ Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    console.log('🔥 Firebase initialisert');
   </script>
-  <script src="github-sync.js"></script>
-  <script src="storage-helper.js"></script>
+  
+  <!-- Firebase Sync Scripts -->
+  <script src="firebase-sync.js"></script>
+  <script src="firebase-storage-helper.js"></script>
 </head>
 <body>
   <div id="root"></div>
