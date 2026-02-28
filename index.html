@@ -10,6 +10,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     * {
       margin: 0;
@@ -516,31 +520,145 @@
     }
   </style>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  
-  <!-- Firebase Configuration -->
+  <!-- Supabase Configuration -->
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCL0FDaoMWkp4s8PDGCsTzTbNwGIOFtP9s",
-      authDomain: "asif-praksisplan.firebaseapp.com",
-      databaseURL: "https://asif-praksisplan-default-rtdb.firebaseio.com",
-      projectId: "asif-praksisplan",
-      storageBucket: "asif-praksisplan.firebasestorage.app",
-      messagingSenderId: "409587395940",
-      appId: "1:409587395940:web:cfe7fa9a14cc1b8e16de71",
-      measurementId: "G-XFZ8SQLRHR"
-    };
+    const SUPABASE_URL = 'https://gkfgdtxxcnryztllhzlh.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrZmdkdHh4Y25yeXp0bGxoemxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNDI5MzgsImV4cCI6MjA4NzgxODkzOH0.mioTmWUvU8004rdef67gimpfs7ivypnZhBaAar_IBoc';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    console.log('🔥 Firebase initialisert');
+    // Retry configuration
+    const RETRY_DELAYS = [5000, 10000, 30000, 60000]; // 5s, 10s, 30s, 1min
+    const MAX_AUTO_RETRIES = 10; // Max automatiske forsøk per session
+    let autoRetryAttempt = 0;
+    let retryTimeoutId = null;
+    let isSupabaseOnline = true;
+    let hasPendingChanges = false;
+
+    // Test Supabase connection
+    async function testSupabaseConnection() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('praksisplan_data')
+          .select('key')
+          .limit(1);
+        
+        if (!error) {
+          if (!isSupabaseOnline) {
+            console.log('✅ Supabase tilkobling gjenopprettet!');
+            isSupabaseOnline = true;
+            autoRetryAttempt = 0; // Reset counter når tilkobling er tilbake
+            
+            // Sync any pending localStorage data
+            if (hasPendingChanges) {
+              syncLocalDataToSupabase();
+            }
+          }
+          return true;
+        }
+        throw error;
+      } catch (error) {
+        if (isSupabaseOnline) {
+          console.warn('⚠️ Supabase utilgjengelig, bruker localStorage');
+        }
+        isSupabaseOnline = false;
+        scheduleAutoRetry();
+        return false;
+      }
+    }
+
+    // Schedule automatic retry with exponential backoff (max 10 forsøk)
+    function scheduleAutoRetry() {
+      // Ikke schedule hvis vi allerede har et forsøk pågående
+      if (retryTimeoutId) return;
+      
+      // Stopp automatiske forsøk etter MAX_AUTO_RETRIES
+      if (autoRetryAttempt >= MAX_AUTO_RETRIES) {
+        console.log(`⏸️ Automatiske forsøk stoppet (${MAX_AUTO_RETRIES}/${MAX_AUTO_RETRIES})`);
+        console.log('💡 Vil prøve igjen ved neste dataendring eller side-refresh');
+        return;
+      }
+      
+      const delay = RETRY_DELAYS[Math.min(autoRetryAttempt, RETRY_DELAYS.length - 1)];
+      console.log(`🔄 Auto-retry ${autoRetryAttempt + 1}/${MAX_AUTO_RETRIES} om ${delay/1000} sekunder...`);
+      
+      retryTimeoutId = setTimeout(async () => {
+        retryTimeoutId = null;
+        autoRetryAttempt++;
+        await testSupabaseConnection();
+      }, delay);
+    }
+
+    // Retry on data change (triggered by user action)
+    async function retryOnDataChange() {
+      hasPendingChanges = true;
+      
+      // Hvis Supabase er offline OG vi har nådd max auto-retries
+      if (!isSupabaseOnline && autoRetryAttempt >= MAX_AUTO_RETRIES) {
+        console.log('🔄 Ny endring detektert - prøver Supabase igjen...');
+        
+        // Test tilkobling umiddelbart ved brukerhandling
+        const success = await testSupabaseConnection();
+        
+        if (!success) {
+          // Start ny retry-syklus (resetter IKKE autoRetryAttempt)
+          console.log('⚠️ Fortsatt offline - data lagret lokalt');
+          console.log('💡 Prøv å refresh siden når internett er tilbake');
+        }
+      }
+    }
+
+    // Sync localStorage data to Supabase when connection restored
+    async function syncLocalDataToSupabase() {
+      const keys = ['egenomsorgsActivities', 'resepturActivities', 'arbeidskravCompleted', 
+                    'continuousActivities', 'apokusCourses', 'ganttCompletedTasks'];
+      
+      console.log('📤 Synkroniserer lokal data til Supabase...');
+      let syncedCount = 0;
+      
+      for (const key of keys) {
+        const localData = localStorage.getItem(key);
+        if (localData) {
+          try {
+            const parsed = JSON.parse(localData);
+            await supabaseClient
+              .from('praksisplan_data')
+              .upsert({
+                key: key,
+                data: parsed,
+                updated_at: new Date().toISOString()
+              }, { onConflict: 'key' });
+            syncedCount++;
+          } catch (error) {
+            console.error(`Kunne ikke synkronisere ${key}:`, error);
+          }
+        }
+      }
+      
+      if (syncedCount > 0) {
+        console.log(`✅ Synkroniserte ${syncedCount} datasett til Supabase`);
+        hasPendingChanges = false;
+        // Reload to show updated data
+        setTimeout(() => window.location.reload(), 1000);
+      }
+    }
+
+    // Listen for storage changes (når data endres i andre filer)
+    window.addEventListener('storage', (e) => {
+      if (e.key && ['egenomsorgsActivities', 'resepturActivities', 'arbeidskravCompleted', 
+                    'continuousActivities', 'apokusCourses', 'ganttCompletedTasks'].includes(e.key)) {
+        retryOnDataChange();
+      }
+    });
+
+    // Expose retry function globally for other pages to call
+    window.triggerSupabaseRetry = retryOnDataChange;
+
+    // Initial connection test
+    testSupabaseConnection();
+    console.log('🚀 Supabase initialisert med smart auto-retry');
+    console.log(`📊 Max automatiske forsøk: ${MAX_AUTO_RETRIES} per session`);
+    console.log('💡 Ved endringer etter max forsøk: Prøver igjen umiddelbart');
   </script>
-  
-  <!-- Firebase Sync Scripts -->
-  <script src="firebase-sync.js"></script>
-  <script src="firebase-storage-helper.js"></script>
 </head>
 <body>
   <div id="root"></div>
@@ -607,80 +725,106 @@
 
     function Dashboard() {
       const [moduleProgress, setModuleProgress] = useState({});
+      const [loading, setLoading] = useState(true);
 
-      // Calculate progress for each module
-      useMemo(() => {
-        const progress = {};
-        
-        modules.forEach(module => {
-          if (module.storageKey) {
-            const data = localStorage.getItem(module.storageKey);
-            if (data) {
-              try {
-                const parsed = JSON.parse(data);
-                let completed = 0;
-                
-                // Del 1 & Del 2: Set of "periodId-activityIndex" strings
-                if (module.id === 'del1' || module.id === 'del2') {
-                  completed = parsed.length; // It's an array from the Set
-                }
-                // Del 3: Set of task IDs
-                else if (module.id === 'del3') {
-                  const arbeidskravData = localStorage.getItem('arbeidskravCompleted');
-                  if (arbeidskravData) {
-                    completed = JSON.parse(arbeidskravData).length;
+      // Load progress from Supabase (with localStorage fallback)
+      React.useEffect(() => {
+        async function loadProgress() {
+          const progress = {};
+          
+          for (const module of modules) {
+            let completed = 0;
+            
+            // Try Supabase first
+            try {
+              const storageKey = module.storageKey || (module.id === 'del3' ? 'arbeidskravCompleted' : null);
+              
+              if (storageKey) {
+                const { data, error } = await supabaseClient
+                  .from('praksisplan_data')
+                  .select('data')
+                  .eq('key', storageKey)
+                  .single();
+
+                if (data && data.data) {
+                  const parsed = data.data;
+                  
+                  // Del 1 & Del 2: Array of "periodId-activityIndex" strings
+                  if (module.id === 'del1' || module.id === 'del2') {
+                    completed = Array.isArray(parsed) ? parsed.length : 0;
+                  }
+                  // Del 3: Array of task IDs
+                  else if (module.id === 'del3') {
+                    completed = Array.isArray(parsed) ? parsed.length : 0;
+                  }
+                  // Del 4: Array of activities with count
+                  else if (module.id === 'del4') {
+                    completed = Array.isArray(parsed) ? parsed.filter(item => item.count > 0).length : 0;
+                  }
+                  // Del 5 & Gantt: Array of IDs
+                  else if (module.id === 'del5' || module.id === 'gantt') {
+                    completed = Array.isArray(parsed) ? parsed.length : 0;
                   }
                 }
-                // Del 4: Array of activities with count
-                else if (module.id === 'del4') {
-                  // Count activities that have been done at least once
-                  completed = parsed.filter(item => item.count > 0).length;
-                }
-                // Del 5: Set of course codes
-                else if (module.id === 'del5') {
-                  completed = parsed.length; // Array from Set
-                }
-                // Gantt: Set of completed task IDs
-                else if (module.id === 'gantt') {
-                  completed = parsed.length; // Array from Set
-                }
-                
-                progress[module.id] = {
-                  completed,
-                  total: module.totalItems,
-                  percentage: Math.round((completed / module.totalItems) * 100)
-                };
-              } catch (e) {
-                progress[module.id] = { completed: 0, total: module.totalItems, percentage: 0 };
               }
-            } else {
-              progress[module.id] = { completed: 0, total: module.totalItems, percentage: 0 };
-            }
-          } else {
-            // Del 3 special handling
-            if (module.id === 'del3') {
-              const arbeidskravData = localStorage.getItem('arbeidskravCompleted');
-              if (arbeidskravData) {
-                try {
-                  const completed = JSON.parse(arbeidskravData).length;
-                  progress[module.id] = {
-                    completed,
-                    total: module.totalItems,
-                    percentage: Math.round((completed / module.totalItems) * 100)
-                  };
-                } catch (e) {
-                  progress[module.id] = { completed: 0, total: module.totalItems, percentage: 0 };
+            } catch (error) {
+              console.log(`Supabase: Ingen data for ${module.id}, bruker localStorage fallback`);
+              
+              // Fallback to localStorage
+              const storageKey = module.storageKey || (module.id === 'del3' ? 'arbeidskravCompleted' : null);
+              if (storageKey) {
+                const localData = localStorage.getItem(storageKey);
+                if (localData) {
+                  try {
+                    const parsed = JSON.parse(localData);
+                    
+                    if (module.id === 'del1' || module.id === 'del2') {
+                      completed = parsed.length;
+                    } else if (module.id === 'del3') {
+                      completed = parsed.length;
+                    } else if (module.id === 'del4') {
+                      completed = parsed.filter(item => item.count > 0).length;
+                    } else if (module.id === 'del5' || module.id === 'gantt') {
+                      completed = parsed.length;
+                    }
+                  } catch (e) {
+                    console.error(`Error parsing localStorage for ${module.id}:`, e);
+                  }
                 }
-              } else {
-                progress[module.id] = { completed: 0, total: module.totalItems, percentage: 0 };
               }
-            } else {
-              progress[module.id] = { completed: 0, total: module.totalItems, percentage: 0 };
             }
+            
+            progress[module.id] = {
+              completed,
+              total: module.totalItems,
+              percentage: Math.round((completed / module.totalItems) * 100)
+            };
           }
-        });
+          
+          setModuleProgress(progress);
+          setLoading(false);
+        }
         
-        setModuleProgress(progress);
+        loadProgress();
+      }, []);
+
+      // Subscribe to realtime changes
+      React.useEffect(() => {
+        const channel = supabaseClient
+          .channel('praksisplan_changes')
+          .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'praksisplan_data' },
+            () => {
+              console.log('🔄 Data oppdatert - refresher dashboard...');
+              // Reload progress when data changes
+              window.location.reload();
+            }
+          )
+          .subscribe();
+
+        return () => {
+          supabaseClient.removeChannel(channel);
+        };
       }, []);
 
       const overallStats = useMemo(() => {
@@ -713,6 +857,11 @@
             </div>
           </nav>
 
+        {loading ? (
+          <div className="container" style={{ textAlign: 'center', paddingTop: '4rem' }}>
+            <h2 style={{ color: 'var(--primary)' }}>🚀 Laster data fra Supabase...</h2>
+          </div>
+        ) : (
         <div className="container">
           <div className="hero-header">
             <div className="hero-content">
@@ -828,6 +977,7 @@
             </div>
           </div>
         </div>
+        )}
         </>
       );
     }

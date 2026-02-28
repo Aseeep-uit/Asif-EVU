@@ -536,31 +536,92 @@
     }
   </style>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  <!-- Firebase Configuration -->
+  <!-- Supabase Configuration med Smart Retry -->
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCL0FDaoMWkp4s8PDGCsTzTbNwGIOFtP9s",
-      authDomain: "asif-praksisplan.firebaseapp.com",
-      databaseURL: "https://asif-praksisplan-default-rtdb.firebaseio.com",
-      projectId: "asif-praksisplan",
-      storageBucket: "asif-praksisplan.firebasestorage.app",
-      messagingSenderId: "409587395940",
-      appId: "1:409587395940:web:cfe7fa9a14cc1b8e16de71",
-      measurementId: "G-XFZ8SQLRHR"
-    };
+    const SUPABASE_URL = 'https://gkfgdtxxcnryztllhzlh.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrZmdkdHh4Y25yeXp0bGxoemxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNDI5MzgsImV4cCI6MjA4NzgxODkzOH0.mioTmWUvU8004rdef67gimpfs7ivypnZhBaAar_IBoc';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const STORAGE_KEY = 'ganttCompletedTasks';
     
-    \/\/ Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    console.log('🔥 Firebase initialisert');
+    const RETRY_DELAYS = [5000, 10000, 30000, 60000];
+    const MAX_AUTO_RETRIES = 10;
+    let autoRetryAttempt = 0;
+    let retryTimeoutId = null;
+    let isSupabaseOnline = true;
+    let hasPendingChanges = false;
+
+    async function testSupabaseConnection() {
+      try {
+        const { data, error } = await supabaseClient.from('praksisplan_data').select('key').limit(1);
+        if (!error) {
+          if (!isSupabaseOnline) {
+            console.log('✅ Supabase tilkobling gjenopprettet!');
+            isSupabaseOnline = true;
+            autoRetryAttempt = 0;
+            if (hasPendingChanges) syncLocalDataToSupabase();
+          }
+          return true;
+        }
+        throw error;
+      } catch (error) {
+        if (isSupabaseOnline) console.warn('⚠️ Supabase utilgjengelig, bruker localStorage');
+        isSupabaseOnline = false;
+        scheduleAutoRetry();
+        return false;
+      }
+    }
+
+    function scheduleAutoRetry() {
+      if (retryTimeoutId || autoRetryAttempt >= MAX_AUTO_RETRIES) {
+        if (autoRetryAttempt >= MAX_AUTO_RETRIES) {
+          console.log(`⏸️ Automatiske forsøk stoppet (${MAX_AUTO_RETRIES}/${MAX_AUTO_RETRIES})`);
+        }
+        return;
+      }
+      const delay = RETRY_DELAYS[Math.min(autoRetryAttempt, RETRY_DELAYS.length - 1)];
+      console.log(`🔄 Auto-retry ${autoRetryAttempt + 1}/${MAX_AUTO_RETRIES} om ${delay/1000}s...`);
+      retryTimeoutId = setTimeout(async () => {
+        retryTimeoutId = null;
+        autoRetryAttempt++;
+        await testSupabaseConnection();
+      }, delay);
+    }
+
+    async function retryOnDataChange() {
+      hasPendingChanges = true;
+      if (!isSupabaseOnline && autoRetryAttempt >= MAX_AUTO_RETRIES) {
+        console.log('🔄 Ny endring - prøver Supabase igjen...');
+        await testSupabaseConnection();
+      }
+    }
+
+    async function syncLocalDataToSupabase() {
+      const localData = localStorage.getItem(STORAGE_KEY);
+      if (localData) {
+        try {
+          await supabaseClient.from('praksisplan_data').upsert({
+            key: STORAGE_KEY,
+            data: JSON.parse(localData),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+          console.log('✅ Gantt data synkronisert til Supabase');
+          hasPendingChanges = false;
+          if (window.opener && window.opener.triggerSupabaseRetry) {
+            window.opener.triggerSupabaseRetry();
+          }
+        } catch (error) {
+          console.error('Kunne ikke synkronisere:', error);
+        }
+      }
+    }
+
+    window.triggerSupabaseRetry = retryOnDataChange;
+    testSupabaseConnection();
+    console.log('🚀 Gantt - Supabase med smart retry');
   </script>
-  
-  <!-- Firebase Sync Scripts -->
-  <script src="firebase-sync.js"></script>
-  <script src="firebase-storage-helper.js"></script>
 </head>
 <body>
   <div id="root"></div>
@@ -620,6 +681,61 @@
       const [selectedPillars, setSelectedPillars] = useState(['farmakoterapi', 'kommunikasjon', 'lovverk', 'arbeidskrav', 'milestone']);
       const [selectedPhases, setSelectedPhases] = useState([1, 2, 3, 4]);
       const [completedTasks, setCompletedTasks] = useState(new Set());
+      const [loading, setLoading] = useState(true);
+
+      // Load from Supabase on mount
+      React.useEffect(() => {
+        async function loadData() {
+          try {
+            const { data } = await supabaseClient
+              .from('praksisplan_data')
+              .select('data')
+              .eq('key', STORAGE_KEY)
+              .single();
+
+            if (data && data.data) {
+              setCompletedTasks(new Set(data.data));
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(data.data));
+              console.log(`✅ Lastet ${data.data.length} oppgaver fra Supabase`);
+            } else {
+              const localData = localStorage.getItem(STORAGE_KEY);
+              if (localData) {
+                setCompletedTasks(new Set(JSON.parse(localData)));
+                console.log('📱 Lastet fra localStorage');
+              }
+            }
+          } catch (error) {
+            const localData = localStorage.getItem(STORAGE_KEY);
+            if (localData) setCompletedTasks(new Set(JSON.parse(localData)));
+          } finally {
+            setLoading(false);
+          }
+        }
+        loadData();
+      }, []);
+
+      // Save to Supabase when changed
+      React.useEffect(() => {
+        if (loading) return;
+        
+        const dataArray = Array.from(completedTasks);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataArray));
+        
+        async function save() {
+          try {
+            await supabaseClient.from('praksisplan_data').upsert({
+              key: STORAGE_KEY,
+              data: dataArray,
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'key' });
+            console.log('✅ Lagret til Supabase');
+          } catch (error) {
+            console.warn('⚠️ Lagret lokalt');
+            retryOnDataChange();
+          }
+        }
+        save();
+      }, [completedTasks, loading]);
 
       const togglePillar = (pillar) => {
         setSelectedPillars(prev => 
@@ -684,6 +800,11 @@
             </div>
           </nav>
 
+        {loading ? (
+          <div className="container" style={{ textAlign: 'center', paddingTop: '4rem' }}>
+            <h2>🚀 Laster data...</h2>
+          </div>
+        ) : (
         <div className="container">
           <div className="header">
             <h1>Apotekpraksis Gantt</h1>
@@ -846,6 +967,7 @@
             </div>
           </div>
         </div>
+        )}
         </>
       );
     }
