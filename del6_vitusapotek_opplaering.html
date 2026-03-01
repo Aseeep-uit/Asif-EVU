@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Del 6: Vitusapotek Opplæring</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0f766e;
+      --secondary: #14b8a6;
+      --accent: #2dd4bf;
+      --bg: #f0fdfa;
+      --bg-card: #ffffff;
+      --text: #134e4a;
+      --text-muted: #6b7280;
+      --border: #ccfbf1;
+      --shadow: rgba(15, 118, 110, 0.1);
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: linear-gradient(135deg, var(--bg) 0%, #f0f9ff 100%);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Navigation */
+    .top-nav {
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .nav-brand {
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .nav-link.active {
+      background: white;
+      color: #0f766e;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    /* Timeline */
+    .timeline-container {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .timeline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(to right, #10b981, #14b8a6, #f59e0b, #ef4444);
+      transform: translateY(-50%);
+      z-index: 0;
+    }
+
+    .timeline-phase {
+      flex: 1;
+      text-align: center;
+      z-index: 1;
+      position: relative;
+    }
+
+    .timeline-dot {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: white;
+      border: 4px solid;
+      margin: 0 auto 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .phase-1 .timeline-dot { border-color: #10b981; color: #10b981; }
+    .phase-2 .timeline-dot { border-color: #14b8a6; color: #14b8a6; }
+    .phase-3 .timeline-dot { border-color: #f59e0b; color: #f59e0b; }
+    .phase-4 .timeline-dot { border-color: #ef4444; color: #ef4444; }
+
+    .timeline-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .timeline-count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Phase Sections */
+    .phase-section {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .phase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .phase-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .phase-icon {
+      font-size: 2rem;
+    }
+
+    .phase-title h2 {
+      font-size: 1.8rem;
+      color: var(--primary);
+    }
+
+    .phase-badge {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .eqs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1rem;
+    }
+
+    .eqs-item {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .eqs-item:hover {
+      border-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .eqs-item.completed {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border-color: #10b981;
+    }
+
+    .eqs-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .checkbox {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .checkbox.checked {
+      background: var(--primary);
+      color: white;
+    }
+
+    .eqs-content {
+      flex: 1;
+    }
+
+    .eqs-code {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .eqs-title {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* Funksjonsansvar Section */
+    .funksjon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .funksjon-card {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .funksjon-card:hover {
+      border-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .funksjon-card.completed {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-color: #f59e0b;
+    }
+
+    .funksjon-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .funksjon-title {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
+    .funksjon-checkbox {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+    }
+
+    .funksjon-checkbox.checked {
+      background: #f59e0b;
+      border-color: #f59e0b;
+      color: white;
+    }
+
+    .funksjon-info {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .funksjon-eqs {
+      font-size: 0.85rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .timeline {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .timeline::before {
+        display: none;
+      }
+
+      .eqs-grid, .funksjon-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sticky Footer */
+    .sticky-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      padding: 0.75rem 2rem;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+      z-index: 999;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .vitusapotek-logo {
+      height: 35px;
+      width: auto;
+      background: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .footer-text {
+      color: white;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    body {
+      padding-bottom: 75px;
+    }
+
+    @media (max-width: 768px) {
+      .sticky-footer {
+        padding: 0.6rem 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .vitusapotek-logo {
+        height: 28px;
+      }
+      
+      .footer-text {
+        font-size: 0.85rem;
+      }
+      
+      body {
+        padding-bottom: 100px;
+      }
+    }
+
+
+    /* Countdown Widget */
+    .countdown-widget {
+      position: fixed;
+      top: 80px;
+      right: 24px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 200px;
+    }
+
+    .countdown-icon {
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .countdown-content {
+      flex: 1;
+    }
+
+    .countdown-number {
+      font-size: 36px;
+      font-weight: 800;
+      color: white;
+      line-height: 1;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .countdown-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .countdown-date {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .countdown-widget {
+        top: auto;
+        bottom: 180px;
+        right: 16px;
+        left: 16px;
+        padding: 12px 16px;
+      }
+      
+      .countdown-number {
+        font-size: 28px;
+      }
+      
+      .countdown-icon {
+        font-size: 24px;
+      }
+    }
+
+    /* Toast Notifications */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      right: 24px;
+      z-index: 10000;
+      background: linear-gradient(135deg, #10b981, #14b8a6);
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 24px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: all;
+    }
+
+    .toast.error {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+    }
+
+    .toast-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    @media (max-width: 768px) {
+      .toast {
+        bottom: 110px;
+        right: 16px;
+        left: 16px;
+        padding: 12px 20px;
+        font-size: 13px;
+      }
+    }
+
+  
+/* ===================== DARK MODE ===================== */
+body.dark-mode {
+  background: linear-gradient(135deg, #0a0e1a 0%, #0f1219 100%);
+  color: #e8eaf5;
+}
+
+body.dark-mode .top-nav {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+}
+
+body.dark-mode .activity-card,
+body.dark-mode .eqs-item,
+body.dark-mode .funksjon-card,
+body.dark-mode .period-card,
+body.dark-mode .phase-section,
+body.dark-mode .task-card,
+body.dark-mode .course-card {
+  background: #131829;
+  border-color: #1e2337;
+  color: #e8eaf5;
+}
+
+body.dark-mode .sticky-footer {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 80px;
+  right: 2rem;
+  z-index: 1001;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 50px;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+body.dark-mode .theme-toggle {
+  background: #131829;
+  border-color: #1e2337;
+  color: #e8eaf5;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .theme-toggle {
+    top: auto;
+    bottom: 120px;
+    right: 1rem;
+  }
+}
+
+  </style>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Supabase Configuration med Smart Retry -->
+  <script>
+    const SUPABASE_URL = 'https://gkfgdtxxcnryztllhzlh.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrZmdkdHh4Y25yeXp0bGxoemxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNDI5MzgsImV4cCI6MjA4NzgxODkzOH0.mioTmWUvU8004rdef67gimpfs7ivypnZhBaAar_IBoc';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const STORAGE_KEY = 'vitusapotekOpplaering';
+    
+    const RETRY_DELAYS = [5000, 10000, 30000, 60000];
+    const MAX_AUTO_RETRIES = 10;
+    let autoRetryAttempt = 0;
+    let retryTimeoutId = null;
+    let isSupabaseOnline = true;
+    let hasPendingChanges = false;
+
+    async function testSupabaseConnection() {
+      try {
+        const { data, error } = await supabaseClient.from('praksisplan_data').select('key').limit(1);
+        if (!error) {
+          if (!isSupabaseOnline) {
+            console.log('✅ Supabase tilkobling gjenopprettet!');
+            isSupabaseOnline = true;
+            autoRetryAttempt = 0;
+            if (hasPendingChanges) syncLocalDataToSupabase();
+          }
+          return true;
+        }
+        throw error;
+      } catch (error) {
+        if (isSupabaseOnline) console.warn('⚠️ Supabase utilgjengelig, bruker localStorage');
+        isSupabaseOnline = false;
+        scheduleAutoRetry();
+        return false;
+      }
+    }
+
+    function scheduleAutoRetry() {
+      if (retryTimeoutId || autoRetryAttempt >= MAX_AUTO_RETRIES) {
+        if (autoRetryAttempt >= MAX_AUTO_RETRIES) {
+          console.log(`⏸️ Automatiske forsøk stoppet (${MAX_AUTO_RETRIES}/${MAX_AUTO_RETRIES})`);
+        }
+        return;
+      }
+      const delay = RETRY_DELAYS[Math.min(autoRetryAttempt, RETRY_DELAYS.length - 1)];
+      console.log(`🔄 Auto-retry ${autoRetryAttempt + 1}/${MAX_AUTO_RETRIES} om ${delay/1000}s...`);
+      retryTimeoutId = setTimeout(async () => {
+        retryTimeoutId = null;
+        autoRetryAttempt++;
+        await testSupabaseConnection();
+      }, delay);
+    }
+
+    async function retryOnDataChange() {
+      hasPendingChanges = true;
+      if (!isSupabaseOnline && autoRetryAttempt >= MAX_AUTO_RETRIES) {
+        console.log('🔄 Ny endring - prøver Supabase igjen...');
+        await testSupabaseConnection();
+      }
+    }
+
+    async function syncLocalDataToSupabase() {
+      const localData = localStorage.getItem(STORAGE_KEY);
+      if (localData) {
+        try {
+          await supabaseClient.from('praksisplan_data').upsert({
+            key: STORAGE_KEY,
+            data: JSON.parse(localData),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+          console.log('✅ Del 6 data synkronisert til Supabase');
+          hasPendingChanges = false;
+          if (window.opener && window.opener.triggerSupabaseRetry) {
+            window.opener.triggerSupabaseRetry();
+          }
+        } catch (error) {
+          console.error('Kunne ikke synkronisere:', error);
+        }
+      }
+    }
+
+    window.triggerSupabaseRetry = retryOnDataChange;
+    testSupabaseConnection();
+    
+
+    // Countdown Calculator
+    function updateCountdown() {
+      const examDate = new Date('2026-05-15T09:00:00');
+      const now = new Date();
+      const diff = examDate - now;
+      const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      
+      const el = document.getElementById('days-left');
+      if (el) {
+        el.textContent = daysLeft > 0 ? daysLeft : 0;
+      }
+    }
+
+    // Update immediately and every hour
+    updateCountdown();
+    setInterval(updateCountdown, 3600000);
+
+    // Toast Notification System
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      
+      const icon = type === 'success' ? '✓' : '⚠';
+      toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+      toast.className = 'toast' + (type === 'error' ? ' error' : '');
+      
+      setTimeout(() => toast.classList.add('show'), 100);
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    console.log('🚀 Del 6 - Supabase med smart retry');
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // EQS Data fra Opplæringsplan
+    const EQS_DATA = {
+      dag1: [
+        { code: 'EQS 2130', title: 'Opptreden under ran og trussel' },
+        { code: 'EQS 1057', title: 'Mottak og istandgjøring av resept' },
+        { code: 'EQS 3267', title: 'Kundemøte ved ekspedisjon av legemidler i apotek' },
+        { code: 'EQS 1236', title: 'Medisinbytte i apotek (Generisk bytte)' }
+      ],
+      uke1: [
+        { code: 'EQS 1286', title: 'Implementering og etterlevelse av kvalitetssystemet' },
+        { code: 'EQS 1056', title: 'Farmasøytkontroll av resepter' },
+        { code: 'EQS 1590', title: 'Destruksjon av avfall' },
+        { code: 'EQS 4851', title: 'Strekkodekontroll og FMD i apotek' },
+        { code: 'EQS 1642', title: 'Tilbakekallinger i apotek' },
+        { code: 'EQS 1392', title: 'Godkjenningsfritak' },
+        { code: 'EQS 2835', title: 'Varerydding i apotek' },
+        { code: 'EQS 1248', title: 'Tilberedning av antibiotika miksturer' },
+        { code: 'EQS 4174', title: 'Narkotikakontroll i Vitusapotek' },
+        { code: 'EQS 4425', title: 'Angrerett og bytterett for apotekkunder' },
+        { code: 'EQS 1350', title: 'Nødekspedisjon' },
+        { code: 'EQS 4657', title: 'Stikkuhell på sprøyter og andre blodeksponeringer' }
+      ],
+      mnd3: [
+        { code: 'EQS 1052', title: 'Anbrudd og delutlevering fra apotek' },
+        { code: 'EQS 2177', title: 'Kundeklager' },
+        { code: 'EQS 5034', title: 'Salg av reseptfrie legemidler med krav om veiledning' },
+        { code: 'EQS 4734', title: 'Varsling av avvik med personopplysninger i Vitusapotek' },
+        { code: 'EQS 1063', title: 'Arkivering av resepter, rekvisisjoner, attester og tilvirkningsdokumentasjon' },
+        { code: 'EQS 1758', title: 'Fysisk sikring i apotek - informasjonssikkerhet' },
+        { code: 'EQS 2280', title: 'Feilekspedisjoner i apotek' },
+        { code: 'EQS 1946', title: 'Varsling av kritikkverdige forhold' },
+        { code: 'EQS 1257', title: 'Falske resepter' },
+        { code: 'EQS 4479', title: 'Bransjefelles offentlig finansierte tjenester i apotek' },
+        { code: 'EQS 5349', title: 'Håndtering av legemiddelmangel i apotek' },
+        { code: 'EQS 3205', title: 'Kasseoppgjør i apotek' },
+        { code: 'EQS 4761', title: 'Varebestilling og varemottak' },
+        { code: 'EQS 2777', title: 'Oversikt over apotekets meldeplikter' },
+        { code: 'EQS 2855', title: 'Holdbarhetskontroll' },
+        { code: 'EQS 2757', title: 'Taushetsplikt og informasjonssikkerhet' },
+        { code: 'EQS 1139', title: 'Kasserutiner' }
+      ],
+      mnd6: [
+        { code: 'Alle', title: 'Alle relevante EQS prosedyrer MÅ være lest og forstått' }
+      ]
+    };
+
+    // Funksjonsansvar data
+    const FUNKSJONSANSVAR_DATA = [
+      { 
+        id: 'rekvirent', 
+        title: 'Rekvirentopplæring', 
+        eqs: 'Kompetansebevis for rekvirenter',
+        info: 'Tilgang til ApotekInfo ressursside'
+      },
+      { 
+        id: 'vaksinator', 
+        title: 'Vaksinatøropplæring', 
+        eqs: 'Kompetansebevis + EQS 5373',
+        info: 'Bedriftsvaksinering'
+      },
+      { 
+        id: 'medisinstart', 
+        title: 'Tjenestefarmasøyt Medisinstart', 
+        eqs: 'Kompetansebevis for tjenestefarmasøyter',
+        info: 'Medisinstart'
+      },
+      { 
+        id: 'inhalasjon', 
+        title: 'Tjenestefarmasøyt Inhalasjon', 
+        eqs: 'Kompetansebevis for inhalasjonsveiledning',
+        info: 'Inhalasjonsveiledning'
+      },
+      { 
+        id: 'lar', 
+        title: 'LAR-ansvar', 
+        eqs: 'AP 132 LAR i apotek + NE 230 + EQS 3020',
+        info: 'Legemiddelassistert rehabilitering'
+      },
+      { 
+        id: 'logistikk', 
+        title: 'Logistikkansvarlig', 
+        eqs: 'EQS 1228',
+        info: 'Lagerkontroll'
+      },
+      { 
+        id: 'blodtrykk', 
+        title: 'Blodtrykksmåling', 
+        eqs: 'EQS 5212',
+        info: 'Blodtrykksmåling i apotek'
+      },
+      { 
+        id: 'legemiddelgjennomgang', 
+        title: 'Legemiddelgjennomgang', 
+        eqs: 'EQS 4725 + EQS 4718',
+        info: 'Gjennomgang og tilsyn av legemiddelhåndtering'
+      },
+      { 
+        id: 'forsendelse', 
+        title: 'Forsendelse', 
+        eqs: 'EQS 2745 + EQS 4627',
+        info: 'Via kommisjonær og post'
+      },
+      { 
+        id: 'medisinutsalg', 
+        title: 'Medisinutsalg', 
+        eqs: 'EQS 4316',
+        info: 'Medisinutsalg'
+      },
+      { 
+        id: 'skipsmedisin', 
+        title: 'Skipsmedisin', 
+        eqs: 'EQS 2180',
+        info: 'Skipsmedisin'
+      },
+      { 
+        id: 'multidose', 
+        title: 'Multidose', 
+        eqs: 'EQS 1003 + EQS 4721 + EQS 4893 + EQS 4920',
+        info: 'Håndtering av multidose'
+      }
+    ];
+
+    function VitusapotekOpplaering() {
+      const [completedEQS, setCompletedEQS] = useState(new Set());
+      const [completedFunksjon, setCompletedFunksjon] = useState(new Set());
+      const [loading, setLoading] = useState(true);
+
+      // Load data from Supabase
+      React.useEffect(() => {
+        async function loadData() {
+          try {
+            const { data } = await supabaseClient
+              .from('praksisplan_data')
+              .select('data')
+              .eq('key', STORAGE_KEY)
+              .single();
+
+            if (data && data.data) {
+              setCompletedEQS(new Set(data.data.eqs || []));
+              setCompletedFunksjon(new Set(data.data.funksjon || []));
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(data.data));
+              console.log('✅ Lastet Vitusapotek opplæring fra Supabase');
+            } else {
+              const localData = localStorage.getItem(STORAGE_KEY);
+              if (localData) {
+                const parsed = JSON.parse(localData);
+                setCompletedEQS(new Set(parsed.eqs || []));
+                setCompletedFunksjon(new Set(parsed.funksjon || []));
+                console.log('📱 Lastet fra localStorage');
+              }
+            }
+          } catch (error) {
+            const localData = localStorage.getItem(STORAGE_KEY);
+            if (localData) {
+              const parsed = JSON.parse(localData);
+              setCompletedEQS(new Set(parsed.eqs || []));
+              setCompletedFunksjon(new Set(parsed.funksjon || []));
+            }
+          } finally {
+            setLoading(false);
+          }
+        }
+        loadData();
+      }, []);
+
+      // Save data when changed
+      React.useEffect(() => {
+        if (loading) return;
+        
+        const saveData = {
+          eqs: Array.from(completedEQS),
+          funksjon: Array.from(completedFunksjon)
+        };
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
+        
+        async function save() {
+          try {
+            await supabaseClient.from('praksisplan_data').upsert({
+              key: STORAGE_KEY,
+              data: saveData,
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'key' });
+            console.log('✅ Lagret til Supabase'); showToast('Lagret!');
+          } catch (error) {
+            console.warn('⚠️ Lagret lokalt');
+            retryOnDataChange();
+          }
+        }
+        save();
+      }, [completedEQS, completedFunksjon, loading]);
+
+      const toggleEQS = (code) => {
+        const newSet = new Set(completedEQS);
+        if (newSet.has(code)) {
+          newSet.delete(code);
+        } else {
+          newSet.add(code);
+        }
+        setCompletedEQS(newSet);
+      };
+
+      const toggleFunksjon = (id) => {
+        const newSet = new Set(completedFunksjon);
+        if (newSet.has(id)) {
+          newSet.delete(id);
+        } else {
+          newSet.add(id);
+        }
+        setCompletedFunksjon(newSet);
+      };
+
+      const stats = useMemo(() => {
+        const totalEQS = EQS_DATA.dag1.length + EQS_DATA.uke1.length + EQS_DATA.mnd3.length + 1;
+        const completedEQSCount = completedEQS.size;
+        const eqsProgress = Math.round((completedEQSCount / totalEQS) * 100);
+        
+        const totalFunksjon = FUNKSJONSANSVAR_DATA.length;
+        const completedFunksjonCount = completedFunksjon.size;
+        const funksjonProgress = Math.round((completedFunksjonCount / totalFunksjon) * 100);
+
+        return {
+          totalEQS,
+          completedEQSCount,
+          eqsProgress,
+          totalFunksjon,
+          completedFunksjonCount,
+          funksjonProgress,
+          overallProgress: Math.round(((completedEQSCount + completedFunksjonCount) / (totalEQS + totalFunksjon)) * 100)
+        };
+      }, [completedEQS, completedFunksjon]);
+
+      return (
+        <>
+          <nav className="top-nav">
+            <div className="nav-container">
+              <div className="nav-brand">🏥 Muhammad Asif - Praksisplan Apotekpraksis</div>
+              <div className="nav-links">
+                <a href="index.html" className="nav-link">📊 Oversikt</a>
+                <a href="del1_egenomsorg_oppdatert.html" className="nav-link">🏥 Del 1</a>
+                <a href="del2_reseptur.html" className="nav-link">💊 Del 2</a>
+                <a href="del3_arbeidskrav.html" className="nav-link">📝 Del 3</a>
+                <a href="del4_kontinuerlige_aktiviteter.html" className="nav-link">📊 Del 4</a>
+                <a href="del5_apokus.html" className="nav-link">🎓 Del 5</a>
+                <a href="del6_vitusapotek_opplaering.html" className="nav-link active">🏪 Del 6</a>
+                <a href="gantt_apotekpraksis.html" className="nav-link">📅 Gantt</a>
+              </div>
+            </div>
+          </nav>
+
+          {loading ? (
+            <div className="container" style={{ textAlign: 'center', paddingTop: '4rem' }}>
+              <h2>🚀 Laster data...</h2>
+            </div>
+          ) : (
+          <div className="container">
+            <div className="header">
+              <h1>Del 6: Vitusapotek Opplæring</h1>
+              <p className="subtitle">Opplæringsplan Farmasøyt • Vitusapotek Stovner</p>
+            </div>
+
+            {/* Timeline */}
+            <div className="timeline-container">
+              <h2 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>📅 Opplæringstidslinje</h2>
+              <div className="timeline">
+                <div className="timeline-phase phase-1">
+                  <div className="timeline-dot">1</div>
+                  <div className="timeline-label">Dag 1</div>
+                  <div className="timeline-count">{EQS_DATA.dag1.length} EQS</div>
+                </div>
+                <div className="timeline-phase phase-2">
+                  <div className="timeline-dot">2</div>
+                  <div className="timeline-label">Uke 1</div>
+                  <div className="timeline-count">{EQS_DATA.uke1.length} EQS</div>
+                </div>
+                <div className="timeline-phase phase-3">
+                  <div className="timeline-dot">3</div>
+                  <div className="timeline-label">3 måneder</div>
+                  <div className="timeline-count">{EQS_DATA.mnd3.length} EQS</div>
+                </div>
+                <div className="timeline-phase phase-4">
+                  <div className="timeline-dot">4</div>
+                  <div className="timeline-label">6 måneder</div>
+                  <div className="timeline-count">Prøvetid slutt</div>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-value">{stats.completedEQSCount}/{stats.totalEQS}</div>
+                  <div className="stat-label">EQS Fullført</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-value">{stats.completedFunksjonCount}/{stats.totalFunksjon}</div>
+                  <div className="stat-label">Funksjonsansvar</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-value">{stats.overallProgress}%</div>
+                  <div className="stat-label">Total Framgang</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Dag 1 */}
+            <div className="phase-section">
+              <div className="phase-header">
+                <div className="phase-title">
+                  <span className="phase-icon">🚀</span>
+                  <h2>Dag 1 - Oppstart</h2>
+                </div>
+                <div className="phase-badge">
+                  {EQS_DATA.dag1.filter(e => completedEQS.has(e.code)).length} / {EQS_DATA.dag1.length}
+                </div>
+              </div>
+              <div className="eqs-grid">
+                {EQS_DATA.dag1.map(eqs => (
+                  <div 
+                    key={eqs.code}
+                    className={`eqs-item ${completedEQS.has(eqs.code) ? 'completed' : ''}`}
+                    onClick={() => toggleEQS(eqs.code)}
+                  >
+                    <div className="eqs-checkbox">
+                      <div className={`checkbox ${completedEQS.has(eqs.code) ? 'checked' : ''}`}>
+                        {completedEQS.has(eqs.code) && '✓'}
+                      </div>
+                      <div className="eqs-content">
+                        <div className="eqs-code">{eqs.code}</div>
+                        <div className="eqs-title">{eqs.title}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Uke 1 */}
+            <div className="phase-section">
+              <div className="phase-header">
+                <div className="phase-title">
+                  <span className="phase-icon">📚</span>
+                  <h2>Uke 1</h2>
+                </div>
+                <div className="phase-badge">
+                  {EQS_DATA.uke1.filter(e => completedEQS.has(e.code)).length} / {EQS_DATA.uke1.length}
+                </div>
+              </div>
+              <div className="eqs-grid">
+                {EQS_DATA.uke1.map(eqs => (
+                  <div 
+                    key={eqs.code}
+                    className={`eqs-item ${completedEQS.has(eqs.code) ? 'completed' : ''}`}
+                    onClick={() => toggleEQS(eqs.code)}
+                  >
+                    <div className="eqs-checkbox">
+                      <div className={`checkbox ${completedEQS.has(eqs.code) ? 'checked' : ''}`}>
+                        {completedEQS.has(eqs.code) && '✓'}
+                      </div>
+                      <div className="eqs-content">
+                        <div className="eqs-code">{eqs.code}</div>
+                        <div className="eqs-title">{eqs.title}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 3 måneder */}
+            <div className="phase-section">
+              <div className="phase-header">
+                <div className="phase-title">
+                  <span className="phase-icon">⚡</span>
+                  <h2>Innen 3 måneder</h2>
+                </div>
+                <div className="phase-badge">
+                  {EQS_DATA.mnd3.filter(e => completedEQS.has(e.code)).length} / {EQS_DATA.mnd3.length}
+                </div>
+              </div>
+              <div className="eqs-grid">
+                {EQS_DATA.mnd3.map(eqs => (
+                  <div 
+                    key={eqs.code}
+                    className={`eqs-item ${completedEQS.has(eqs.code) ? 'completed' : ''}`}
+                    onClick={() => toggleEQS(eqs.code)}
+                  >
+                    <div className="eqs-checkbox">
+                      <div className={`checkbox ${completedEQS.has(eqs.code) ? 'checked' : ''}`}>
+                        {completedEQS.has(eqs.code) && '✓'}
+                      </div>
+                      <div className="eqs-content">
+                        <div className="eqs-code">{eqs.code}</div>
+                        <div className="eqs-title">{eqs.title}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 6 måneder + Funksjonsansvar */}
+            <div className="phase-section">
+              <div className="phase-header">
+                <div className="phase-title">
+                  <span className="phase-icon">🎯</span>
+                  <h2>Innen 6 måneder - Prøvetid slutt</h2>
+                </div>
+                <div className="phase-badge">
+                  {completedEQS.has('Alle') ? '✓' : 'Ikke fullført'}
+                </div>
+              </div>
+              <div className="eqs-grid">
+                {EQS_DATA.mnd6.map(eqs => (
+                  <div 
+                    key={eqs.code}
+                    className={`eqs-item ${completedEQS.has(eqs.code) ? 'completed' : ''}`}
+                    onClick={() => toggleEQS(eqs.code)}
+                  >
+                    <div className="eqs-checkbox">
+                      <div className={`checkbox ${completedEQS.has(eqs.code) ? 'checked' : ''}`}>
+                        {completedEQS.has(eqs.code) && '✓'}
+                      </div>
+                      <div className="eqs-content">
+                        <div className="eqs-code">{eqs.code}</div>
+                        <div className="eqs-title">{eqs.title}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Funksjonsansvar */}
+            <div className="phase-section">
+              <div className="phase-header">
+                <div className="phase-title">
+                  <span className="phase-icon">⭐</span>
+                  <h2>Funksjonsansvar, delansvar og medansvar</h2>
+                </div>
+                <div className="phase-badge">
+                  {completedFunksjon.size} / {FUNKSJONSANSVAR_DATA.length}
+                </div>
+              </div>
+              <div className="funksjon-grid">
+                {FUNKSJONSANSVAR_DATA.map(funk => (
+                  <div 
+                    key={funk.id}
+                    className={`funksjon-card ${completedFunksjon.has(funk.id) ? 'completed' : ''}`}
+                    onClick={() => toggleFunksjon(funk.id)}
+                  >
+                    <div className="funksjon-header">
+                      <div className="funksjon-title">{funk.title}</div>
+                      <div className={`funksjon-checkbox ${completedFunksjon.has(funk.id) ? 'checked' : ''}`}>
+                        {completedFunksjon.has(funk.id) && '✓'}
+                      </div>
+                    </div>
+                    <div className="funksjon-info">{funk.info}</div>
+                    <div className="funksjon-eqs">{funk.eqs}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          )}
+        </>
+      );
+    }
+
+    ReactDOM.render(<VitusapotekOpplaering />, document.getElementById('root'));
+  </script>
+
+
+
+  <!-- Countdown til Eksamen -->
+  <div class="countdown-widget">
+    <div class="countdown-icon">📅</div>
+    <div class="countdown-content">
+      <div class="countdown-number" id="days-left">--</div>
+      <div class="countdown-label">dager til eksamen</div>
+      <div class="countdown-date">15. mai 2026</div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Sticky Footer -->
+  <div class="sticky-footer">
+    <div class="footer-left">
+      <img src="Vitusapotek-logo.jpg" alt="Vitusapotek" class="vitusapotek-logo" onerror="this.style.display='none'">
+      <span class="footer-text">📍 Vitusapotek Stovner</span>
+    </div>
+  </div>
+</body>
+</html>
