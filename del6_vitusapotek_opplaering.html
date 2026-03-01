@@ -738,7 +738,7 @@ body.dark-mode .theme-toggle {
 
     // Countdown Calculator
     function updateCountdown() {
-      const examDate = new Date('2026-05-15T09:00:00');
+      const examDate = new Date('2026-06-17T09:00:00');
       const now = new Date();
       const diff = examDate - now;
       const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
@@ -746,6 +746,18 @@ body.dark-mode .theme-toggle {
       const el = document.getElementById('days-left');
       if (el) {
         el.textContent = daysLeft > 0 ? daysLeft : 0;
+        
+        // Endre farge basert på tid igjen
+        const widget = document.querySelector('.countdown-widget');
+        if (widget && daysLeft > 0) {
+          if (daysLeft <= 7) {
+            widget.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+          } else if (daysLeft <= 30) {
+            widget.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
+          } else {
+            widget.style.background = 'linear-gradient(135deg, #10b981, #14b8a6)';
+          }
+        }
       }
     }
 
@@ -771,6 +783,10 @@ body.dark-mode .theme-toggle {
 
     console.log('🚀 Del 6 - Supabase med smart retry');
   </script>
+
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
 </head>
 <body>
   <div id="root"></div>
@@ -1251,14 +1267,18 @@ body.dark-mode .theme-toggle {
 
 
 
+  <!-- Dark Mode Toggle -->
+  <button class="theme-toggle" onclick="toggleDarkMode()">
+    <span id="theme-icon">🌙</span>
+    <span id="theme-text">Dark Mode</span>
+  </button>
+
   <!-- Countdown til Eksamen -->
   <div class="countdown-widget">
-    <div class="countdown-icon">📅</div>
-    <div class="countdown-content">
-      <div class="countdown-number" id="days-left">--</div>
-      <div class="countdown-label">dager til eksamen</div>
-      <div class="countdown-date">15. mai 2026</div>
-    </div>
+    <div class="countdown-label">TIL OSCE EKSAMEN</div>
+    <div class="countdown-number" id="days-left">--</div>
+    <div class="countdown-text">dager igjen</div>
+    <div class="countdown-date">17. juni 2026</div>
   </div>
 
   <!-- Toast Notification -->
@@ -1271,5 +1291,130 @@ body.dark-mode .theme-toggle {
       <span class="footer-text">📍 Vitusapotek Stovner</span>
     </div>
   </div>
+
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
+      document.getElementById('theme-text').textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('theme-icon').textContent = '☀️';
+        document.getElementById('theme-text').textContent = 'Light Mode';
+      }
+    });
+  </script>
+<script>
+    // ===================== CONFETTI & CELEBRATIONS =====================
+    
+    // Trigger confetti
+    function fireConfetti(type = 'default') {
+      const configs = {
+        default: {
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        },
+        milestone: {
+          particleCount: 150,
+          spread: 100,
+          origin: { y: 0.5 },
+          colors: ['#10b981', '#14b8a6', '#06b6d4', '#3b82f6']
+        },
+        complete: {
+          particleCount: 200,
+          spread: 120,
+          origin: { y: 0.4 },
+          colors: ['#10b981', '#14b8a6', '#06b6d4', '#f59e0b', '#ef4444']
+        }
+      };
+      
+      const config = configs[type] || configs.default;
+      confetti(config);
+      
+      // Side bursts for big celebrations
+      if (type === 'complete') {
+        setTimeout(() => {
+          confetti({ ...config, origin: { x: 0, y: 0.6 } });
+          confetti({ ...config, origin: { x: 1, y: 0.6 } });
+        }, 250);
+      }
+    }
+
+    // Check for milestones
+    function checkMilestones(completedCount, totalCount) {
+      const percentage = Math.round((completedCount / totalCount) * 100);
+      const milestones = [25, 50, 75, 100];
+      
+      milestones.forEach(milestone => {
+        const key = `milestone_${milestone}_shown`;
+        if (percentage >= milestone && !sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, 'true');
+          showCelebration(milestone);
+          
+          if (milestone === 100) {
+            fireConfetti('complete');
+          } else {
+            fireConfetti('milestone');
+          }
+        }
+      });
+    }
+
+    // Show celebration message
+    function showCelebration(milestone) {
+      const messages = {
+        25: '🎉 25% Fullført!',
+        50: '🚀 Halvveis der!',
+        75: '⭐ 75% Fullført!',
+        100: '🏆 GRATULERER! 100%!'
+      };
+      
+      const badge = document.createElement('div');
+      badge.className = 'celebration-badge';
+      badge.textContent = messages[milestone];
+      document.body.appendChild(badge);
+      
+      setTimeout(() => badge.classList.add('show'), 100);
+      
+      setTimeout(() => {
+        badge.classList.remove('show');
+        setTimeout(() => badge.remove(), 500);
+      }, 3000);
+    }
+
+    // Add ripple effect on click
+    function createRipple(event) {
+      const button = event.currentTarget;
+      const ripple = document.createElement('span');
+      const rect = button.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = event.clientX - rect.left - size / 2;
+      const y = event.clientY - rect.top - size / 2;
+      
+      ripple.className = 'ripple';
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      
+      button.style.position = 'relative';
+      button.style.overflow = 'hidden';
+      button.appendChild(ripple);
+      
+      setTimeout(() => ripple.remove(), 600);
+    }
+
+    // Apply to all clickable elements
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.activity-card, .eqs-item, .course-card, .task-card, .quick-link-btn, .module-link').forEach(el => {
+        el.addEventListener('click', createRipple);
+      });
+    });
+</script>
 </body>
 </html>
