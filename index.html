@@ -570,6 +570,84 @@
       }
     }
 
+    /* Dark Mode Toggle - Footer Right */
+    .theme-toggle {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 10000;
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      border: none;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(15, 118, 110, 0.3);
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(15, 118, 110, 0.4);
+    }
+
+    .theme-toggle:active {
+      transform: translateY(-1px) scale(0.98);
+    }
+
+    .theme-toggle-icon {
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+      line-height: 1;
+    }
+
+    .theme-toggle:hover .theme-toggle-icon {
+      transform: rotate(20deg);
+    }
+
+    .theme-toggle-text {
+      display: none;
+    }
+
+    /* Dark mode styling */
+    body.dark-mode .theme-toggle {
+      background: linear-gradient(135deg, #1e293b, #334155);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    body.dark-mode .theme-toggle:hover {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Tablet & Mobile */
+    @media (max-width: 1024px) {
+      .theme-toggle {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .theme-toggle-icon {
+        font-size: 1.3rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .theme-toggle {
+        width: 48px;
+        height: 48px;
+        bottom: 0.75rem;
+        right: 0.75rem;
+      }
+      
+      .theme-toggle-icon {
+        font-size: 1.2rem;
+      }
+    }
+
     /* Sticky Footer */
     .sticky-footer {
       position: fixed;
@@ -675,6 +753,33 @@
       opacity: 0.8;
     }
 
+    /* Tablet: Smaller, compact version */
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .countdown-widget {
+        top: 70px;
+        right: 1rem;
+        min-width: 110px;
+        padding: 8px 12px;
+      }
+      
+      .countdown-label {
+        font-size: 0.6rem;
+      }
+      
+      .countdown-number {
+        font-size: 1.5rem;
+      }
+      
+      .countdown-text {
+        font-size: 0.65rem;
+      }
+      
+      .countdown-date {
+        font-size: 0.6rem;
+      }
+    }
+    
+    /* Mobile: Hide completely */
     @media (max-width: 768px) {
       .countdown-widget {
         display: none;
@@ -915,9 +1020,7 @@
     }
 
     /* ===================== DARK MODE TOGGLE ===================== */
-    .theme-toggle {
-      position: fixed;
-      top: 140px;
+    P0px;
       right: 2rem;
       z-index: 1001;
       background: var(--bg-card);
@@ -950,6 +1053,42 @@
       transform: rotate(20deg);
     }
 
+        /* Tablet: Horizontal layout, side by side */
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .countdown-widget {
+        top: 10px;
+        right: 180px;
+        min-width: 100px;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+      
+      .countdown-label {
+        font-size: 0.55rem;
+        margin-bottom: 2px;
+      }
+      
+      .countdown-number {
+        font-size: 1.3rem;
+      }
+      
+      .countdown-text {
+        font-size: 0.6rem;
+        margin-top: 2px;
+      }
+      
+      .countdown-date {
+        font-size: 0.55rem;
+        margin-top: 2px;
+      }
+    }
+      
+      .theme-toggle-icon {
+        font-size: 1rem;
+      }
+    }
+    
+    /* Mobile: Bottom right, icon only */
     @media (max-width: 768px) {
       .theme-toggle {
         top: auto;
@@ -1110,6 +1249,8 @@
       const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
       
       const el = document.getElementById('days-left');
+      console.log('Countdown update:', { daysLeft, elementFound: !!el });
+      
       if (el) {
         el.textContent = daysLeft > 0 ? daysLeft : 0;
         
@@ -1127,8 +1268,14 @@
       }
     }
 
-    // Update immediately and every hour
-    updateCountdown();
+    // Update countdown when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateCountdown);
+    } else {
+      updateCountdown();
+    }
+    
+    // Update every hour
     setInterval(updateCountdown, 3600000);
 
     // Toast Notification System
@@ -1177,7 +1324,6 @@
       if (darkModePreference === 'enabled') {
         document.body.classList.add('dark-mode');
         document.getElementById('theme-icon').textContent = '☀️';
-        document.getElementById('theme-text').textContent = 'Light Mode';
       }
     });
   </script>
@@ -1930,10 +2076,9 @@
 
 
 
-  <!-- Dark Mode Toggle -->
-  <button class="theme-toggle" id="theme-toggle" onclick="toggleDarkMode()">
+  <!-- Dark Mode Toggle - Footer Right -->
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
     <span class="theme-toggle-icon" id="theme-icon">🌙</span>
-    <span class="theme-toggle-text" id="theme-text">Dark Mode</span>
   </button>
 
   <!-- Countdown til Eksamen -->

@@ -207,42 +207,98 @@
       height: 300px;
     }
 
-        /* Dark Mode Toggle */
+                    /* Dark Mode Toggle - Footer Left */
     .theme-toggle {
       position: fixed;
-      top: 140px;
-      right: 2rem;
-      z-index: 1001;
-      background: var(--bg-card);
-      border: 2px solid var(--border);
-      border-radius: 50px;
-      padding: 8px 16px;
+      bottom: 1rem;
+      left: 1rem;
+      z-index: 10000;
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      border: none;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text);
-      box-shadow: 0 4px 12px var(--shadow);
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(15, 118, 110, 0.3);
       transition: all 0.3s ease;
       user-select: none;
     }
 
     .theme-toggle:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px var(--shadow-lg);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(15, 118, 110, 0.4);
+    }
+
+    .theme-toggle:active {
+      transform: translateY(-1px) scale(0.98);
     }
 
     .theme-toggle-icon {
-      font-size: 1.2rem;
+      font-size: 1.5rem;
       transition: transform 0.3s ease;
+      line-height: 1;
     }
 
     .theme-toggle:hover .theme-toggle-icon {
       transform: rotate(20deg);
     }
 
+    .theme-toggle-text {
+      display: none;
+    }
+
+    body.dark-mode .theme-toggle {
+      background: linear-gradient(135deg, #1e293b, #334155);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    body.dark-mode .theme-toggle:hover {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    @media (max-width: 1024px) {
+      .theme-toggle {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .theme-toggle-icon {
+        font-size: 1.3rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .theme-toggle {
+        width: 48px;
+        height: 48px;
+        bottom: 0.75rem;
+        left: 0.75rem;
+      }
+      
+      .theme-toggle-icon {
+        font-size: 1.2rem;
+      }
+    }
+
+
+    /* Tablet: Next to countdown */
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .theme-toggle {
+        top: 10px;
+        right: 1rem;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+      }
+      
+      .theme-toggle-icon {
+        font-size: 1rem;
+      }
+    }
+
+    /* Mobile: Bottom right */
     @media (max-width: 768px) {
       .theme-toggle {
         top: auto;
@@ -330,18 +386,9 @@
 
   <div id="root"></div>
 
-  <!-- Countdown til Eksamen -->
-  <div class="countdown-widget">
-    <div class="countdown-label">TIL OSCE EKSAMEN</div>
-    <div class="countdown-number" id="days-left">--</div>
-    <div class="countdown-text">dager igjen</div>
-    <div class="countdown-date">17. juni 2026</div>
-  </div>
-
-    <!-- Dark Mode Toggle -->
-  <button class="theme-toggle" id="theme-toggle" onclick="toggleDarkMode()">
+  <!-- Dark Mode Toggle - Footer Left -->
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
     <span class="theme-toggle-icon" id="theme-icon">🌙</span>
-    <span class="theme-toggle-text" id="theme-text">Dark Mode</span>
   </button>
 
   <!-- Sticky Footer -->
