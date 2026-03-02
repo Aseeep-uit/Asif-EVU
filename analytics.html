@@ -622,7 +622,7 @@
     function AnalyticsDashboard() {
       const [stats, setStats] = useState({
         totalCompleted: 0,
-        totalItems: 257,
+        totalItems: 254,
         currentStreak: 0,
         avgPerDay: 0,
         daysToCompletion: 0
@@ -637,25 +637,25 @@
           const totalCompleted = completed.length;
         const streak = calculateStreak(log);
           const avgPerDay = calculateAvgPerDay(log);
-        const remaining = 257 - totalCompleted;
+        const remaining = 254 - totalCompleted;
         const daysToCompletion = avgPerDay > 0 ? Math.ceil(remaining / avgPerDay) : 0;
 
         setStats({
           totalCompleted,
-          totalItems: 257,
+          totalItems: 254,
           currentStreak: streak,
           avgPerDay: avgPerDay.toFixed(1),
           daysToCompletion
-          });
+        });
 
-          // Initialize charts
+        // Initialize charts
         setTimeout(() => {
           initCharts(log, completed);
-        }
-        
-        loadData();
         }, 100);
-      }, []);
+      }
+      
+      loadData();
+    }, []);
 
       function calculateStreak(log) {
         if (log.length === 0) return 0;
@@ -739,7 +739,8 @@
             'Del 3': { total: 9, prefix: 'del3-' },
             'Del 4': { total: 13, prefix: 'del4-' },
             'Del 5': { total: 78, prefix: 'del5-' },
-            'Del 6': { total: 47, prefix: 'del6-' },
+            'Del 6 EQS': { total: 34, prefix: 'del6-eqs-' },
+            'Del 6 Ansvar': { total: 10, prefix: 'del6-funk-' },
             'Gantt': { total: 37, prefix: 'gantt-' }
           };
           
@@ -751,7 +752,7 @@
           new Chart(moduleCtx, {
             type: 'bar',
             data: {
-              labels: ['Del 1', 'Del 2', 'Del 3', 'Del 4', 'Del 5', 'Del 6', 'Gantt'],
+              labels: ['Del 1', 'Del 2', 'Del 3', 'Del 4', 'Del 5', 'Del 6 EQS', 'Del 6 Ansvar', 'Gantt'],
               datasets: [{
                 label: 'Fullført (%)',
                 data: moduleProgress,
@@ -762,6 +763,7 @@
                   '#f59e0b',
                   '#84cc16',
                   '#8b5cf6',
+                  '#ec4899',
                   '#f43f5e'
                 ]
               }]
