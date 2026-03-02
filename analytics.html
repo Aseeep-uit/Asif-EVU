@@ -566,9 +566,21 @@
     // Funksjon for å hente alle fullførte items fra Supabase
     async function getAllCompletedItems() {
       try {
+        // Hent data for alle kjente keys
+        const keys = [
+          'egenomsorgsActivities',      // Del 1
+          'resepturActivities',          // Del 2
+          'arbeidskravCompleted',        // Del 3
+          'continuousActivities',        // Del 4
+          'apokusCourses',              // Del 5
+          'vitusapotekOpplaering',      // Del 6
+          'ganttCompletedTasks'         // Gantt
+        ];
+        
         const { data, error } = await supabaseClient
           .from('praksisplan_data')
-          .select('*');
+          .select('*')
+          .in('key', keys);
         
         if (error) throw error;
         
@@ -577,25 +589,44 @@
         let completionLog = [];
         
         data.forEach(item => {
-          if (item.value && typeof item.value === 'object') {
-            // Del 1-6 og Gantt har 'items' array
-            if (item.value.items && Array.isArray(item.value.items)) {
-              item.value.items.forEach(id => allCompleted.add(id));
+          const itemData = item.data || item.value;
+          
+          if (!itemData) return;
+          
+          console.log('📦 Processing module:', item.key, itemData);
+          
+          // Del 1, 2, 3, 4, 5, Gantt har 'items' array
+          if (itemData.items && Array.isArray(itemData.items)) {
+            itemData.items.forEach(id => {
+              allCompleted.add(id);
+            });
+          }
+          
+          // Del 6 har 'eqs' og 'funksjon' arrays
+          if (item.key === 'vitusapotekOpplaering') {
+            if (itemData.eqs && Array.isArray(itemData.eqs)) {
+              itemData.eqs.forEach(eqsCode => {
+                allCompleted.add('del6-eqs-' + eqsCode);
+              });
             }
-            // EQS data har eqs array
-            if (item.value.eqs && Array.isArray(item.value.eqs)) {
-              item.value.eqs.forEach(eqs => allCompleted.add(eqs));
-            }
-            // Funksjonsansvar har funksjoner array
-            if (item.value.funksjoner && Array.isArray(item.value.funksjoner)) {
-              item.value.funksjoner.forEach(f => allCompleted.add(f));
-            }
-            
-            // Legg til completion log hvis det finnes
-            if (item.value.completionLog && Array.isArray(item.value.completionLog)) {
-              completionLog = completionLog.concat(item.value.completionLog);
+            if (itemData.funksjon && Array.isArray(itemData.funksjon)) {
+              itemData.funksjon.forEach(funkId => {
+                allCompleted.add('del6-funk-' + funkId);
+              });
             }
           }
+          
+          // Completion log
+          if (itemData.completionLog && Array.isArray(itemData.completionLog)) {
+            completionLog = completionLog.concat(itemData.completionLog);
+          }
+        });
+        
+        console.log('📊 Analytics data loaded:', {
+          totalItems: allCompleted.size,
+          modulesFound: data.length,
+          modules: data.map(d => d.key),
+          hasLog: completionLog.length > 0
         });
         
         return {

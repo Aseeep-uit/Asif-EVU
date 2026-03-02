@@ -1145,20 +1145,22 @@ body.dark-mode
 
       const toggleEQS = (code) => {
         const newSet = new Set(completedEQS);
-        if (newSet.has(code)) {
-          newSet.delete(code);
+        const id = code; // Bruk bare koden, prefix legges til i analytics
+        if (newSet.has(id)) {
+          newSet.delete(id);
         } else {
-          newSet.add(code);
+          newSet.add(id);
         }
         setCompletedEQS(newSet);
       };
 
       const toggleFunksjon = (id) => {
         const newSet = new Set(completedFunksjon);
-        if (newSet.has(id)) {
-          newSet.delete(id);
+        const itemId = id; // Bruk bare ID, prefix legges til i analytics
+        if (newSet.has(itemId)) {
+          newSet.delete(itemId);
         } else {
-          newSet.add(id);
+          newSet.add(itemId);
         }
         setCompletedFunksjon(newSet);
       };
