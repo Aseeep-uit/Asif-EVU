@@ -593,27 +593,38 @@
           
           if (!itemData) return;
           
-          console.log('📦 Processing module:', item.key, itemData);
+          console.log('📦 Processing module:', item.key, 'Type:', Array.isArray(itemData) ? 'Array' : 'Object');
           
-          // Del 1, 2, 3, 4, 5, Gantt har 'items' array
-          if (itemData.items && Array.isArray(itemData.items)) {
-            itemData.items.forEach(id => {
+          // Del 1, 2, 3, 4, 5, Gantt lagrer direkte som array
+          if (Array.isArray(itemData)) {
+            itemData.forEach(id => {
               allCompleted.add(id);
             });
+            console.log(`  ✅ Loaded ${itemData.length} items from ${item.key}`);
           }
-          
-          // Del 6 har 'eqs' og 'funksjon' arrays
-          if (item.key === 'vitusapotekOpplaering') {
+          // Del 6 lagrer som object med eqs og funksjon arrays
+          else if (item.key === 'vitusapotekOpplaering' && typeof itemData === 'object') {
+            let del6Count = 0;
             if (itemData.eqs && Array.isArray(itemData.eqs)) {
               itemData.eqs.forEach(eqsCode => {
                 allCompleted.add('del6-eqs-' + eqsCode);
+                del6Count++;
               });
             }
             if (itemData.funksjon && Array.isArray(itemData.funksjon)) {
               itemData.funksjon.forEach(funkId => {
                 allCompleted.add('del6-funk-' + funkId);
+                del6Count++;
               });
             }
+            console.log(`  ✅ Loaded ${del6Count} items from Del 6 (${itemData.eqs?.length || 0} EQS + ${itemData.funksjon?.length || 0} ansvar)`);
+          }
+          // Legacy: Object with items array
+          else if (itemData.items && Array.isArray(itemData.items)) {
+            itemData.items.forEach(id => {
+              allCompleted.add(id);
+            });
+            console.log(`  ✅ Loaded ${itemData.items.length} items from ${item.key} (legacy format)`);
           }
           
           // Completion log
