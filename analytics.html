@@ -207,11 +207,132 @@
       height: 300px;
     }
 
-                    /* Dark Mode Toggle - Footer Left */
+                    /* Countdown Widget */
+    .countdown-widget {
+      position: fixed;
+      top: 80px;
+      right: 2rem;
+      z-index: 999;
+      background: linear-gradient(135deg, #10b981, #14b8a6);
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      min-width: 140px;
+      text-align: center;
+      color: white;
+      transition: background 0.3s ease;
+    }
+
+    .countdown-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+      opacity: 0.95;
+    }
+
+    .countdown-number {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .countdown-text {
+      font-size: 0.75rem;
+      margin-top: 4px;
+      opacity: 0.9;
+    }
+
+    .countdown-date {
+      font-size: 0.65rem;
+      margin-top: 4px;
+      opacity: 0.8;
+    }
+
+    /* Tablet: Smaller, compact version */
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .countdown-widget {
+        top: 70px;
+        right: 1rem;
+        min-width: 110px;
+        padding: 8px 12px;
+      }
+      
+      .countdown-label {
+        font-size: 0.6rem;
+      }
+      
+      .countdown-number {
+        font-size: 1.5rem;
+      }
+      
+      .countdown-text {
+        font-size: 0.65rem;
+      }
+      
+      .countdown-date {
+        font-size: 0.6rem;
+      }
+    }
+
+    /* Mobile: Hide */
+    @media (max-width: 768px) {
+      .countdown-widget {
+        display: none;
+      }
+    }
+
+    /* ===================== DARK MODE ===================== */
+    body.dark-mode {
+      --bg: #0a0e1a;
+      --bg-card: #131829;
+      --text: #e8eaf5;
+      --text-muted: #9ca3af;
+      --border: #1e2337;
+      --shadow: rgba(0, 0, 0, 0.3);
+      --shadow-lg: rgba(0, 0, 0, 0.4);
+      --primary: #14b8a6;
+      --secondary: #06b6d4;
+      
+      background: linear-gradient(135deg, #0a0e1a 0%, #0f1219 100%) !important;
+      color: #e8eaf5 !important;
+    }
+
+    body.dark-mode .top-nav {
+      background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+    }
+
+    body.dark-mode .stat-card,
+    body.dark-mode .chart-card {
+      background: #131829 !important;
+      border-color: #1e2337 !important;
+      color: #e8eaf5 !important;
+    }
+
+    body.dark-mode .sticky-footer {
+      background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+    }
+
+    body.dark-mode 
+
+    body.dark-mode 
+
+    /* Tablet: Next to countdown */
+    @media (max-width: 1024px) and (min-width: 769px) {
+
+    }
+
+    /* Mobile: Bottom right */
+    @media (max-width: 768px) {
+
+    }
+
+    /* Dark Mode Toggle - Footer Right */
     .theme-toggle {
       position: fixed;
       bottom: 1rem;
-      left: 1rem;
+      right: 1rem;
       z-index: 10000;
       background: linear-gradient(135deg, #0f766e, #14b8a6);
       border: none;
@@ -250,6 +371,7 @@
       display: none;
     }
 
+    /* Dark mode styling */
     body.dark-mode .theme-toggle {
       background: linear-gradient(135deg, #1e293b, #334155);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
@@ -259,6 +381,7 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
     }
 
+    /* Tablet & Mobile */
     @media (max-width: 1024px) {
       .theme-toggle {
         width: 50px;
@@ -275,43 +398,13 @@
         width: 48px;
         height: 48px;
         bottom: 0.75rem;
-        left: 0.75rem;
+        right: 0.75rem;
       }
       
       .theme-toggle-icon {
         font-size: 1.2rem;
       }
     }
-
-
-    /* Tablet: Next to countdown */
-    @media (max-width: 1024px) and (min-width: 769px) {
-      .theme-toggle {
-        top: 10px;
-        right: 1rem;
-        padding: 6px 12px;
-        font-size: 0.75rem;
-      }
-      
-      .theme-toggle-icon {
-        font-size: 1rem;
-      }
-    }
-
-    /* Mobile: Bottom right */
-    @media (max-width: 768px) {
-      .theme-toggle {
-        top: auto;
-        bottom: 120px;
-        right: 1rem;
-        padding: 10px 14px;
-      }
-      
-      .theme-toggle-text {
-        display: none;
-      }
-    }
-
 
     /* Sticky Footer */
     .sticky-footer {
@@ -354,16 +447,13 @@
         grid-template-columns: 1fr;
       }
 
-      .theme-toggle {
-        bottom: 120px;
-        top: auto;
-        right: 1rem;
-      }
-
       .vitusapotek-logo {
         height: 30px;
       }
     }
+    
+    }
+
   </style>
 </head>
 <body>
@@ -386,7 +476,15 @@
 
   <div id="root"></div>
 
-  <!-- Dark Mode Toggle - Footer Left -->
+    <!-- Countdown til Eksamen -->
+  <div class="countdown-widget">
+    <div class="countdown-label">TIL OSCE EKSAMEN</div>
+    <div class="countdown-number" id="days-left">--</div>
+    <div class="countdown-text">dager igjen</div>
+    <div class="countdown-date">17. juni 2026</div>
+  </div>
+
+  <!-- Dark Mode Toggle - Footer Right -->
   <button class="theme-toggle" id="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
     <span class="theme-toggle-icon" id="theme-icon">🌙</span>
   </button>
@@ -400,6 +498,43 @@
   </div>
 
   <script>
+    // Countdown Calculator - OSCE Eksamen
+    function updateCountdown() {
+      const examDate = new Date('2026-06-17T09:00:00');
+      const now = new Date();
+      const diff = examDate - now;
+      const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      
+      const el = document.getElementById('days-left');
+      console.log('Countdown update:', { daysLeft, elementFound: !!el });
+      
+      if (el) {
+        el.textContent = daysLeft > 0 ? daysLeft : 0;
+        
+        // Endre farge basert på tid igjen
+        const widget = document.querySelector('.countdown-widget');
+        if (widget && daysLeft > 0) {
+          if (daysLeft <= 7) {
+            widget.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+          } else if (daysLeft <= 30) {
+            widget.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
+          } else {
+            widget.style.background = 'linear-gradient(135deg, #10b981, #14b8a6)';
+          }
+        }
+      }
+    }
+
+    // Update countdown when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateCountdown);
+    } else {
+      updateCountdown();
+    }
+    
+    // Update every hour
+    setInterval(updateCountdown, 3600000);
+
     function toggleDarkMode() {
       document.body.classList.toggle('dark-mode');
       const isDark = document.body.classList.contains('dark-mode');
@@ -416,31 +551,7 @@
       }
       
       // OSCE Countdown
-      function updateCountdown() {
-        const examDate = new Date('2026-06-17T09:00:00');
-        const now = new Date();
-        const diff = examDate - now;
-        const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-        
-        const el = document.getElementById('days-left');
-        if (el) {
-          el.textContent = daysLeft > 0 ? daysLeft : 0;
-          
-          const widget = document.querySelector('.countdown-widget');
-          if (widget && daysLeft > 0) {
-            if (daysLeft <= 7) {
-              widget.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-            } else if (daysLeft <= 30) {
-              widget.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
-            } else {
-              widget.style.background = 'linear-gradient(135deg, #10b981, #14b8a6)';
-            }
-          }
-        }
-      }
       
-      updateCountdown();
-      setInterval(updateCountdown, 3600000);
     });
   </script>
 
