@@ -964,124 +964,112 @@ body.dark-mode
     const { useState, useMemo } = React;
 
     // EQS Data fra Opplæringsplan
-    const EQS_DATA = {
+            const EQS_DATA = {
       dag1: [
-        { code: 'EQS 2130', title: 'Opptreden under ran og trussel' },
-        { code: 'EQS 1057', title: 'Mottak og istandgjøring av resept' },
-        { code: 'EQS 3267', title: 'Kundemøte ved ekspedisjon av legemidler i apotek' },
-        { code: 'EQS 1236', title: 'Medisinbytte i apotek (Generisk bytte)' }
+        { code: 'EQS 2757', title: '🔒 Taushetsplikt og informasjonssikkerhet' },
+        { code: 'EQS 1139', title: '💰 Kasserutiner' }
       ],
       uke1: [
-        { code: 'EQS 1286', title: 'Implementering og etterlevelse av kvalitetssystemet' },
-        { code: 'EQS 1056', title: 'Farmasøytkontroll av resepter' },
-        { code: 'EQS 1590', title: 'Destruksjon av avfall' },
-        { code: 'EQS 4851', title: 'Strekkodekontroll og FMD i apotek' },
-        { code: 'EQS 1642', title: 'Tilbakekallinger i apotek' },
-        { code: 'EQS 1392', title: 'Godkjenningsfritak' },
-        { code: 'EQS 2835', title: 'Varerydding i apotek' },
-        { code: 'EQS 1248', title: 'Tilberedning av antibiotika miksturer' },
-        { code: 'EQS 4174', title: 'Narkotikakontroll i Vitusapotek' },
-        { code: 'EQS 4425', title: 'Angrerett og bytterett for apotekkunder' },
-        { code: 'EQS 1350', title: 'Nødekspedisjon' },
-        { code: 'EQS 4657', title: 'Stikkuhell på sprøyter og andre blodeksponeringer' }
+        { code: 'EQS 2130', title: '🚨 Opptreden under ran og trussel' },
+        { code: 'EQS 1057', title: '📝 Mottak og istandgjøring av resept' },
+        { code: 'EQS 3267', title: '👥 Kundemøte ved ekspedisjon av legemidler i apotek' },
+        { code: 'EQS 1236', title: '🔄 Medisinbytte i apotek (Generisk bytte)' },
+        { code: 'EQS 1286', title: '📋 Implementering og etterlevelse av kvalitetssystemet' },
+        { code: 'EQS 1056', title: '✅ Farmasøytkontroll av resepter' },
+        { code: 'EQS 1590', title: '🗑️ Destruksjon av avfall' },
+        { code: 'EQS 4851', title: '📊 Strekkodekontroll og FMD i apotek' },
+        { code: 'EQS 1642', title: '⚠️ Tilbakekallinger i apotek' },
+        { code: 'EQS 1392', title: '✔️ Godkjenningsfritak' },
+        { code: 'EQS 2835', title: '📦 Varerydding i apotek' },
+        { code: 'EQS 1248', title: '🧪 Tilberedning av antibiotika miksturer' },
+        { code: 'EQS 4174', title: '💊 Narkotikakontroll i Vitusapotek' }
       ],
       mnd3: [
-        { code: 'EQS 1052', title: 'Anbrudd og delutlevering fra apotek' },
-        { code: 'EQS 2177', title: 'Kundeklager' },
-        { code: 'EQS 5034', title: 'Salg av reseptfrie legemidler med krav om veiledning' },
-        { code: 'EQS 4734', title: 'Varsling av avvik med personopplysninger i Vitusapotek' },
-        { code: 'EQS 1063', title: 'Arkivering av resepter, rekvisisjoner, attester og tilvirkningsdokumentasjon' },
-        { code: 'EQS 1758', title: 'Fysisk sikring i apotek - informasjonssikkerhet' },
-        { code: 'EQS 2280', title: 'Feilekspedisjoner i apotek' },
-        { code: 'EQS 1946', title: 'Varsling av kritikkverdige forhold' },
-        { code: 'EQS 1257', title: 'Falske resepter' },
-        { code: 'EQS 4479', title: 'Bransjefelles offentlig finansierte tjenester i apotek' },
-        { code: 'EQS 5349', title: 'Håndtering av legemiddelmangel i apotek' },
-        { code: 'EQS 3205', title: 'Kasseoppgjør i apotek' },
-        { code: 'EQS 4761', title: 'Varebestilling og varemottak' },
-        { code: 'EQS 2777', title: 'Oversikt over apotekets meldeplikter' },
-        { code: 'EQS 2855', title: 'Holdbarhetskontroll' },
-        { code: 'EQS 2757', title: 'Taushetsplikt og informasjonssikkerhet' },
-        { code: 'EQS 1139', title: 'Kasserutiner' }
+        { code: 'EQS 4425', title: '↩️ Angrerett og bytterett for apotekkunder' },
+        { code: 'EQS 1350', title: '🆘 Nødekspedisjon' },
+        { code: 'EQS 4657', title: '💉 Stikkuhell på sprøyter og andre blodeksponeringer' },
+        { code: 'EQS 1052', title: '📦 Anbrudd og delutlevering fra apotek' },
+        { code: 'EQS 2177', title: '📢 Kundeklager' },
+        { code: 'EQS 5034', title: '💊 Salg av reseptfrie legemidler med krav om veiledning' },
+        { code: 'EQS 4734', title: '🔐 Varsling av avvik med personopplysninger i Vitusapotek' },
+        { code: 'EQS 1063', title: '📁 Arkivering av resepter, rekvisisjoner, attester og tilvirkningsdokumentasjon' },
+        { code: 'EQS 1758', title: '🏢 Fysisk sikring i apotek - informasjonssikkerhet' },
+        { code: 'EQS 2280', title: '❌ Feilekspedisjoner i apotek' },
+        { code: 'EQS 1946', title: '📣 Varsling av kritikkverdige forhold' },
+        { code: 'EQS 1257', title: '🚫 Falske resepter' },
+        { code: 'EQS 4479', title: '🏥 Bransjefelles offentlig finansierte tjenester i apotek' },
+        { code: 'EQS 5349', title: '⚡ Håndtering av legemiddelmangel i apotek' },
+        { code: 'EQS 3205', title: '💵 Kasseoppgjør i apotek' },
+        { code: 'EQS 4761', title: '📥 Varebestilling og varemottak' },
+        { code: 'EQS 2777', title: '📋 Oversikt over apotekets meldeplikter' },
+        { code: 'EQS 2855', title: '📅 Holdbarhetskontroll' }
       ],
-      mnd6: [
-        { code: 'Alle', title: 'Alle relevante EQS prosedyrer MÅ være lest og forstått' }
+      praksislutt: [
+        { code: 'Alle', title: '🎓 Alle relevante EQS prosedyrer MÅ være lest og forstått' }
       ]
     };
 
     // Funksjonsansvar data
-    const FUNKSJONSANSVAR_DATA = [
+        const FUNKSJONSANSVAR_DATA = [
       { 
         id: 'rekvirent', 
-        title: 'Rekvirentopplæring', 
+        title: '📝 Rekvirentopplæring', 
         eqs: 'Kompetansebevis for rekvirenter',
         info: 'Tilgang til ApotekInfo ressursside'
       },
       { 
         id: 'vaksinator', 
-        title: 'Vaksinatøropplæring', 
+        title: '💉 Vaksinatøropplæring', 
         eqs: 'Kompetansebevis + EQS 5373',
         info: 'Bedriftsvaksinering'
       },
       { 
         id: 'medisinstart', 
-        title: 'Tjenestefarmasøyt Medisinstart', 
+        title: '💊 Tjenestefarmasøyt Medisinstart', 
         eqs: 'Kompetansebevis for tjenestefarmasøyter',
         info: 'Medisinstart'
       },
       { 
         id: 'inhalasjon', 
-        title: 'Tjenestefarmasøyt Inhalasjon', 
+        title: '🌬️ Tjenestefarmasøyt Inhalasjon', 
         eqs: 'Kompetansebevis for inhalasjonsveiledning',
         info: 'Inhalasjonsveiledning'
       },
       { 
         id: 'lar', 
-        title: 'LAR-ansvar', 
+        title: '🏥 LAR-ansvar', 
         eqs: 'AP 132 LAR i apotek + NE 230 + EQS 3020',
         info: 'Legemiddelassistert rehabilitering'
       },
       { 
         id: 'logistikk', 
-        title: 'Logistikkansvarlig', 
+        title: '📦 Logistikkansvarlig', 
         eqs: 'EQS 1228',
         info: 'Lagerkontroll'
       },
       { 
         id: 'blodtrykk', 
-        title: 'Blodtrykksmåling', 
+        title: '🩺 Blodtrykksmåling', 
         eqs: 'EQS 5212',
         info: 'Blodtrykksmåling i apotek'
       },
       { 
         id: 'legemiddelgjennomgang', 
-        title: 'Legemiddelgjennomgang', 
+        title: '📋 Legemiddelgjennomgang', 
         eqs: 'EQS 4725 + EQS 4718',
         info: 'Gjennomgang og tilsyn av legemiddelhåndtering'
       },
       { 
         id: 'forsendelse', 
-        title: 'Forsendelse', 
+        title: '📮 Forsendelse', 
         eqs: 'EQS 2745 + EQS 4627',
         info: 'Via kommisjonær og post'
       },
       { 
-        id: 'medisinutsalg', 
-        title: 'Medisinutsalg', 
-        eqs: 'EQS 4316',
-        info: 'Medisinutsalg'
-      },
-      { 
-        id: 'skipsmedisin', 
-        title: 'Skipsmedisin', 
-        eqs: 'EQS 2180',
-        info: 'Skipsmedisin'
-      },
-      { 
-        id: 'multidose', 
-        title: 'Multidose', 
-        eqs: 'EQS 1003 + EQS 4721 + EQS 4893 + EQS 4920',
-        info: 'Håndtering av multidose'
+        id: 'reseptur', 
+        title: '🧪 Resepturansvarlig', 
+        eqs: 'EQS 1235',
+        info: 'Tilvirkningsdokumentasjon'
       }
     ];
 
@@ -1246,8 +1234,8 @@ body.dark-mode
                 </div>
                 <div className="timeline-phase phase-4">
                   <div className="timeline-dot">4</div>
-                  <div className="timeline-label">6 måneder</div>
-                  <div className="timeline-count">Prøvetid slutt</div>
+                  <div className="timeline-label">Prøveperiode slutt</div>
+                  <div className="timeline-count">{EQS_DATA.praksislutt.length} EQS</div>
                 </div>
               </div>
 
@@ -1369,14 +1357,14 @@ body.dark-mode
               <div className="phase-header">
                 <div className="phase-title">
                   <span className="phase-icon">🎯</span>
-                  <h2>Innen 6 måneder - Prøvetid slutt</h2>
+                  <h2>Prøveperiode slutt</h2>
                 </div>
                 <div className="phase-badge">
                   {completedEQS.has('Alle') ? '✓' : 'Ikke fullført'}
                 </div>
               </div>
               <div className="eqs-grid">
-                {EQS_DATA.mnd6.map(eqs => (
+                {EQS_DATA.praksislutt.map(eqs => (
                   <div 
                     key={eqs.code}
                     className={`eqs-item ${completedEQS.has(eqs.code) ? 'completed' : ''}`}
