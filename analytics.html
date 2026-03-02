@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics - Praksisplan</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f0fdfa;
+      --bg-card: #ffffff;
+      --text: #134e4a;
+      --text-muted: #6b7280;
+      --border: #ccfbf1;
+      --shadow: rgba(15, 118, 110, 0.1);
+      --primary: #0f766e;
+      --secondary: #14b8a6;
+    }
+
+    body.dark-mode {
+      --bg: #0a0e1a;
+      --bg-card: #131829;
+      --text: #e8eaf5;
+      --text-muted: #9ca3af;
+      --border: #1e2337;
+      --shadow: rgba(0, 0, 0, 0.3);
+      --primary: #14b8a6;
+      --secondary: #06b6d4;
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: linear-gradient(135deg, var(--bg) 0%, #f0f9ff 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, #0a0e1a 0%, #0f1219 100%);
+    }
+
+    /* Navigation */
+    .top-nav {
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    body.dark-mode .top-nav {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .nav-brand {
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .nav-link:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .nav-link.active {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .stat-change {
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      font-weight: 600;
+    }
+
+    .stat-change.positive {
+      color: #10b981;
+    }
+
+    .stat-change.negative {
+      color: #ef4444;
+    }
+
+    /* Charts */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .chart-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+
+    /* Dark Mode Toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 80px;
+      right: 2rem;
+      z-index: 1001;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px var(--shadow);
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Sticky Footer */
+    .sticky-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+      z-index: 999;
+    }
+
+    body.dark-mode .sticky-footer {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .vitusapotek-logo {
+      height: 40px;
+      width: auto;
+    }
+
+    .footer-text {
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .theme-toggle {
+        bottom: 120px;
+        top: auto;
+        right: 1rem;
+      }
+
+      .vitusapotek-logo {
+        height: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-container">
+      <div class="nav-brand">📊 Analytics - Praksisplan Apotekpraksis</div>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">📊 Oversikt</a>
+        <a href="analytics.html" class="nav-link active">📈 Analytics</a>
+        <a href="del1_egenomsorg_oppdatert.html" class="nav-link">🏥 Del 1</a>
+        <a href="del2_reseptur.html" class="nav-link">💊 Del 2</a>
+        <a href="del3_arbeidskrav.html" class="nav-link">📝 Del 3</a>
+        <a href="del4_kontinuerlige_aktiviteter.html" class="nav-link">📊 Del 4</a>
+        <a href="del5_apokus.html" class="nav-link">🎓 Del 5</a>
+        <a href="del6_vitusapotek_opplaering.html" class="nav-link">🏪 Del 6</a>
+        <a href="gantt_apotekpraksis.html" class="nav-link">📅 Gantt</a>
+      </div>
+    </div>
+  </nav>
+
+  <div id="root"></div>
+
+  <!-- Countdown til OSCE Eksamen -->
+  <div class="countdown-widget" style="position: fixed; top: 140px; right: 2rem; z-index: 1001; background: linear-gradient(135deg, #10b981, #14b8a6); border-radius: 12px; padding: 12px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 140px; text-align: center; color: white;">
+    <div style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 4px;">TIL OSCE EKSAMEN</div>
+    <div style="font-size: 2rem; font-weight: 800; line-height: 1;" id="days-left">--</div>
+    <div style="font-size: 0.75rem; margin-top: 4px;">dager igjen</div>
+    <div style="font-size: 0.65rem; margin-top: 4px; opacity: 0.9;">17. juni 2026</div>
+  </div>
+
+  <!-- Dark Mode Toggle -->
+  <button class="theme-toggle" onclick="toggleDarkMode()">
+    <span id="theme-icon">🌙</span>
+    <span id="theme-text">Dark Mode</span>
+  </button>
+
+  <!-- Sticky Footer -->
+  <div class="sticky-footer">
+    <div class="footer-left">
+      <img src="Vitusapotek-logo.jpg" alt="Vitusapotek" class="vitusapotek-logo" onerror="this.style.display='none'">
+      <span class="footer-text">📍 Vitusapotek Stovner</span>
+    </div>
+  </div>
+
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
+      document.getElementById('theme-text').textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('theme-icon').textContent = '☀️';
+        document.getElementById('theme-text').textContent = 'Light Mode';
+      }
+      
+      // OSCE Countdown
+      function updateCountdown() {
+        const examDate = new Date('2026-06-17T09:00:00');
+        const now = new Date();
+        const diff = examDate - now;
+        const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        
+        const el = document.getElementById('days-left');
+        if (el) {
+          el.textContent = daysLeft > 0 ? daysLeft : 0;
+          
+          const widget = document.querySelector('.countdown-widget');
+          if (widget && daysLeft > 0) {
+            if (daysLeft <= 7) {
+              widget.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            } else if (daysLeft <= 30) {
+              widget.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
+            } else {
+              widget.style.background = 'linear-gradient(135deg, #10b981, #14b8a6)';
+            }
+          }
+        }
+      }
+      
+      updateCountdown();
+      setInterval(updateCountdown, 3600000);
+    });
+  </script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function AnalyticsDashboard() {
+      const [stats, setStats] = useState({
+        totalCompleted: 0,
+        totalItems: 257,
+        currentStreak: 0,
+        avgPerDay: 0,
+        daysToCompletion: 0
+      });
+
+      useEffect(() => {
+        // Load data from localStorage
+        const completionLog = JSON.parse(localStorage.getItem('completionLog') || '[]');
+        
+        // Calculate stats
+        const totalCompleted = completionLog.length;
+        const streak = calculateStreak(completionLog);
+        const avgPerDay = calculateAvgPerDay(completionLog);
+        const remaining = 257 - totalCompleted;
+        const daysToCompletion = avgPerDay > 0 ? Math.ceil(remaining / avgPerDay) : 0;
+
+        setStats({
+          totalCompleted,
+          totalItems: 257,
+          currentStreak: streak,
+          avgPerDay: avgPerDay.toFixed(1),
+          daysToCompletion
+        });
+
+        // Initialize charts
+        setTimeout(() => {
+          initCharts(completionLog);
+        }, 100);
+      }, []);
+
+      function calculateStreak(log) {
+        if (log.length === 0) return 0;
+        
+        const today = new Date().setHours(0,0,0,0);
+        let streak = 0;
+        let currentDate = today;
+        
+        while (true) {
+          const hasActivity = log.some(item => {
+            const itemDate = new Date(item.timestamp).setHours(0,0,0,0);
+            return itemDate === currentDate;
+          });
+          
+          if (!hasActivity) break;
+          streak++;
+          currentDate -= 24 * 60 * 60 * 1000;
+        }
+        
+        return streak;
+      }
+
+      function calculateAvgPerDay(log) {
+        if (log.length === 0) return 0;
+        
+        const firstDate = new Date(log[0].timestamp);
+        const lastDate = new Date(log[log.length - 1].timestamp);
+        const daysDiff = Math.max(1, Math.ceil((lastDate - firstDate) / (1000 * 60 * 60 * 24)));
+        
+        return log.length / daysDiff;
+      }
+
+      function initCharts(log) {
+        // Progress Over Time Chart
+        const progressCtx = document.getElementById('progressChart');
+        if (progressCtx) {
+          const dates = [];
+          const counts = [];
+          
+          log.forEach((item, index) => {
+            const date = new Date(item.timestamp).toLocaleDateString('no-NO');
+            if (!dates.includes(date)) {
+              dates.push(date);
+              counts.push(index + 1);
+            }
+          });
+
+          new Chart(progressCtx, {
+            type: 'line',
+            data: {
+              labels: dates.slice(-30),
+              datasets: [{
+                label: 'Totalt fullført',
+                data: counts.slice(-30),
+                borderColor: '#14b8a6',
+                backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                tension: 0.4,
+                fill: true
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }
+          });
+        }
+
+        // Module Progress Chart
+        const moduleCtx = document.getElementById('moduleChart');
+        if (moduleCtx) {
+          new Chart(moduleCtx, {
+            type: 'bar',
+            data: {
+              labels: ['Del 1', 'Del 2', 'Del 3', 'Del 4', 'Del 5', 'Del 6', 'Gantt'],
+              datasets: [{
+                label: 'Fullført (%)',
+                data: [75, 60, 80, 45, 70, 50, 65],
+                backgroundColor: [
+                  '#06b6d4',
+                  '#a855f7',
+                  '#10b981',
+                  '#f59e0b',
+                  '#84cc16',
+                  '#8b5cf6',
+                  '#f43f5e'
+                ]
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                y: { 
+                  beginAtZero: true,
+                  max: 100
+                }
+              }
+            }
+          });
+        }
+      }
+
+      return (
+        <div className="container">
+          <div className="page-header">
+            <h1 className="page-title">📊 Analytics Dashboard</h1>
+            <p className="page-subtitle">Detaljert statistikk og fremgang</p>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-label">Totalt fullført</div>
+              <div className="stat-value">{stats.totalCompleted}</div>
+              <div className="stat-change positive">av {stats.totalItems} elementer</div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-label">Nåværende streak</div>
+              <div className="stat-value">{stats.currentStreak} 🔥</div>
+              <div className="stat-change">dager på rad</div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-label">Gjennomsnitt per dag</div>
+              <div className="stat-value">{stats.avgPerDay}</div>
+              <div className="stat-change">elementer/dag</div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-label">Estimert tid til 100%</div>
+              <div className="stat-value">{stats.daysToCompletion}</div>
+              <div className="stat-change">dager igjen</div>
+            </div>
+          </div>
+
+          {/* Charts */}
+          <div className="charts-grid">
+            <div className="chart-card">
+              <h3 className="chart-title">📈 Fremgang over tid</h3>
+              <div className="chart-container">
+                <canvas id="progressChart"></canvas>
+              </div>
+            </div>
+
+            <div className="chart-card">
+              <h3 className="chart-title">📊 Fremgang per modul</h3>
+              <div className="chart-container">
+                <canvas id="moduleChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<AnalyticsDashboard />, document.getElementById('root'));
+  </script>
+</body>
+</html>

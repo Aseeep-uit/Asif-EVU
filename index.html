@@ -1408,6 +1408,10 @@
           
           setModuleProgress(progress);
           setLoading(false);
+          
+          // Export for AI insights
+          window.currentModuleProgress = progress;
+          window.currentOverallStats = overallStats;
         }
         
         loadProgress();
@@ -1452,6 +1456,7 @@
               <div className="nav-brand">🏥 Muhammad Asif - Praksisplan Apotekpraksis</div>
               <div className="nav-links">
                 <a href="index.html" className="nav-link active">📊 Oversikt</a>
+                <a href="analytics.html" className="nav-link">📈 Analytics</a>
                 <a href="del1_egenomsorg_oppdatert.html" className="nav-link">🏥 Del 1</a>
                 <a href="del2_reseptur.html" className="nav-link">💊 Del 2</a>
                 <a href="del3_arbeidskrav.html" className="nav-link">📝 Del 3</a>
@@ -1681,6 +1686,252 @@
     }
 
     ReactDOM.render(<Dashboard />, document.getElementById('root'));
+
+    // ===================== AI-POWERED INSIGHTS =====================
+    const aiInsights = {
+      analyzeProgress: function(moduleProgress, overallStats) {
+        const insights = [];
+        
+        // 1. Balance Analysis
+        const percentages = Object.values(moduleProgress).map(m => m.percentage || 0);
+        const avg = percentages.reduce((a, b) => a + b, 0) / percentages.length;
+        const variance = percentages.reduce((sum, p) => sum + Math.pow(p - avg, 2), 0) / percentages.length;
+        
+        if (variance > 400) { // High variance
+          const lowest = Object.entries(moduleProgress)
+            .sort((a, b) => (a[1].percentage || 0) - (b[1].percentage || 0))[0];
+          const highest = Object.entries(moduleProgress)
+            .sort((a, b) => (b[1].percentage || 0) - (a[1].percentage || 0))[0];
+          
+          insights.push({
+            type: 'balance',
+            icon: '⚖️',
+            priority: 'high',
+            title: 'Ubalansert fremgang',
+            message: `${lowest[0]} er bare ${lowest[1].percentage || 0}% fullført, mens ${highest[0]} er ${highest[1].percentage || 0}%. Fokuser på ${lowest[0]} for bedre balanse!`
+          });
+        }
+        
+        // 2. Pace Analysis
+        const completionLog = JSON.parse(localStorage.getItem('completionLog') || '[]');
+        if (completionLog.length >= 5) {
+          const last7Days = completionLog.filter(item => {
+            const date = new Date(item.timestamp);
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            return date > weekAgo;
+          });
+          
+          const pace = last7Days.length / 7;
+          const remaining = overallStats.totalItems - overallStats.completedItems;
+          const daysToComplete = pace > 0 ? Math.ceil(remaining / pace) : 999;
+          
+          const examDate = new Date('2026-06-17');
+          const today = new Date();
+          const daysToExam = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24));
+          
+          if (daysToComplete <= daysToExam) {
+            insights.push({
+              type: 'pace',
+              icon: '🎯',
+              priority: 'low',
+              title: 'Du er på riktig spor!',
+              message: `Med ${pace.toFixed(1)} oppgaver/dag når du 100% om ${daysToComplete} dager, akkurat til OSCE eksamen! Fortsett sånn! 💪`
+            });
+          } else {
+            const neededPace = (remaining / daysToExam).toFixed(1);
+            insights.push({
+              type: 'pace',
+              icon: '⚠️',
+              priority: 'high',
+              title: 'Øk tempoet!',
+              message: `Du må øke fra ${pace.toFixed(1)} til ${neededPace} oppgaver/dag for å bli ferdig til eksamen. Du klarer dette! 💪`
+            });
+          }
+        }
+        
+        // 3. Streak Motivation
+        const streak = this.calculateStreak(completionLog);
+        if (streak >= 7) {
+          insights.push({
+            type: 'streak',
+            icon: '🔥',
+            priority: 'low',
+            title: `${streak} dagers streak!`,
+            message: `Fantastisk! Du har jobbet ${streak} dager på rad. Hold momentumet! 🚀`
+          });
+        } else if (streak === 0) {
+          insights.push({
+            type: 'streak',
+            icon: '💡',
+            priority: 'medium',
+            title: 'Start en streak i dag!',
+            message: `Fullfør bare én oppgave i dag for å starte en streak. Konsistens er nøkkelen! 📈`
+          });
+        }
+        
+        // 4. Priority Recommendations
+        const criticalModules = Object.entries(moduleProgress)
+          .filter(([key, val]) => key === 'del3' || key === 'del4')
+          .filter(([key, val]) => (val.percentage || 0) < 50);
+        
+        if (criticalModules.length > 0) {
+          insights.push({
+            type: 'priority',
+            icon: '📌',
+            priority: 'high',
+            title: 'Prioriter disse!',
+            message: `${criticalModules.map(([k]) => k).join(' og ')} MÅ være ferdig før eksamen. Start med disse først! ⚡`
+          });
+        }
+        
+        return insights;
+      },
+      
+      calculateStreak: function(log) {
+        if (log.length === 0) return 0;
+        
+        const today = new Date().setHours(0,0,0,0);
+        let streak = 0;
+        let currentDate = today;
+        
+        while (true) {
+          const hasActivity = log.some(item => {
+            const itemDate = new Date(item.timestamp).setHours(0,0,0,0);
+            return itemDate === currentDate;
+          });
+          
+          if (!hasActivity) break;
+          streak++;
+          currentDate -= 24 * 60 * 60 * 1000;
+        }
+        
+        return streak;
+      }
+    };
+
+    // Add insights to page after render
+    setTimeout(() => {
+      const rootEl = document.getElementById('root');
+      if (rootEl && window.currentModuleProgress && window.currentOverallStats) {
+        const insights = aiInsights.analyzeProgress(
+          window.currentModuleProgress, 
+          window.currentOverallStats
+        );
+        
+        if (insights.length > 0) {
+          displayInsights(insights);
+        }
+      }
+    }, 2000);
+
+    function displayInsights(insights) {
+      const container = document.querySelector('.container');
+      if (!container) return;
+      
+      const insightsHTML = `
+        <div style="margin: 2rem 0;">
+          <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: var(--text);">
+            🤖 AI Insights
+          </h2>
+          <div style="display: grid; gap: 1rem;">
+            ${insights.map(insight => `
+              <div style="
+                background: ${insight.priority === 'high' ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05))' : 
+                            insight.priority === 'medium' ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05))' :
+                            'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))'};
+                border: 2px solid ${insight.priority === 'high' ? '#ef4444' : insight.priority === 'medium' ? '#f59e0b' : '#10b981'};
+                border-radius: 12px;
+                padding: 1.5rem;
+                display: flex;
+                gap: 1rem;
+                align-items: flex-start;
+              ">
+                <div style="font-size: 2rem; line-height: 1;">${insight.icon}</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text);">
+                    ${insight.title}
+                  </div>
+                  <div style="color: var(--text-muted); line-height: 1.5;">
+                    ${insight.message}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+      const searchContainer = container.querySelector('.search-container');
+      if (searchContainer) {
+        searchContainer.insertAdjacentHTML('afterend', insightsHTML);
+      }
+    }
+
+    // ===================== CONFETTI MILESTONE TRACKING =====================
+    function checkMilestoneAndCelebrate(percentage) {
+      const milestones = [25, 50, 75, 100];
+      const lastMilestone = parseInt(localStorage.getItem('lastMilestone') || '0');
+      
+      const newMilestone = milestones.find(m => 
+        percentage >= m && m > lastMilestone
+      );
+      
+      if (newMilestone) {
+        // Trigger confetti!
+        confetti({
+          particleCount: 150,
+          spread: 100,
+          origin: { y: 0.6 },
+          colors: ['#10b981', '#14b8a6', '#06b6d4', '#a855f7', '#ec4899', '#f59e0b']
+        });
+        
+        // Show toast
+        const messages = {
+          25: '🎉 25% fullført! Fortsett sånn!',
+          50: '🎊 Halvveis der! Fantastisk jobb!',
+          75: '🌟 75% fullført! Nesten i mål!',
+          100: '🏆 GRATULERER! Du har fullført ALT! 🎉'
+        };
+        
+        setTimeout(() => {
+          showToast(messages[newMilestone], 'success');
+        }, 500);
+        
+        // Save milestone
+        localStorage.setItem('lastMilestone', newMilestone);
+        
+        // Extra confetti for 100%
+        if (newMilestone === 100) {
+          setTimeout(() => {
+            confetti({
+              particleCount: 200,
+              spread: 120,
+              origin: { y: 0.5 }
+            });
+          }, 300);
+          setTimeout(() => {
+            confetti({
+              particleCount: 200,
+              spread: 120,
+              origin: { y: 0.5 }
+            });
+          }, 600);
+        }
+      }
+    }
+
+    // Check milestone on load
+    setTimeout(() => {
+      const rootEl = document.getElementById('root');
+      if (rootEl) {
+        const percentageEl = rootEl.querySelector('.ring-percent');
+        if (percentageEl) {
+          const percentage = parseInt(percentageEl.textContent);
+          checkMilestoneAndCelebrate(percentage);
+        }
+      }
+    }, 1500);
   </script>
 
 

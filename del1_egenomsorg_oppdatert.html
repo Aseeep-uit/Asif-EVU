@@ -1096,6 +1096,7 @@ body.dark-mode .theme-toggle {
               <div className="nav-brand">🏥 Muhammad Asif - Praksisplan Apotekpraksis</div>
               <div className="nav-links">
                 <a href="index.html" className="nav-link">📊 Oversikt</a>
+                <a href="analytics.html" className="nav-link">📈 Analytics</a>
                 <a href="del1_egenomsorg_oppdatert.html" className="nav-link active">🏥 Del 1</a>
                 <a href="del2_reseptur.html" className="nav-link">💊 Del 2</a>
                 <a href="del3_arbeidskrav.html" className="nav-link">📝 Del 3</a>
@@ -1406,5 +1407,39 @@ body.dark-mode .theme-toggle {
       });
     });
 </script>
+
+  <script>
+    // Confetti celebration on milestones
+    function celebrateCompletion(percentage) {
+      if (percentage >= 100) {
+        confetti({
+          particleCount: 200,
+          spread: 120,
+          origin: { y: 0.6 }
+        });
+        setTimeout(() => {
+          confetti({
+            particleCount: 200,
+            spread: 120,
+            origin: { y: 0.6 }
+          });
+        }, 300);
+      } else if (percentage >= 75 && !localStorage.getItem('celebrated75')) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+        localStorage.setItem('celebrated75', 'true');
+      } else if (percentage >= 50 && !localStorage.getItem('celebrated50')) {
+        confetti({
+          particleCount: 80,
+          spread: 60,
+          origin: { y: 0.6 }
+        });
+        localStorage.setItem('celebrated50', 'true');
+      }
+    }
+  </script>
 </body>
 </html>
