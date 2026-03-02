@@ -555,7 +555,68 @@
     });
   </script>
 
-  <script type="text/babel">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Supabase setup
+    const SUPABASE_URL = 'https://gkfgdtxxcnryztllhzlh.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrZmdkdHh4Y25yeXp0bGxoemxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNDI5MzgsImV4cCI6MjA4NzgxODkzOH0.mioTmWUvU8004rdef67gimpfs7ivypnZhBaAar_IBoc';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Funksjon for å hente alle fullførte items fra Supabase
+    async function getAllCompletedItems() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('praksisplan_data')
+          .select('*');
+        
+        if (error) throw error;
+        
+        // Kombiner alle fullførte items
+        let allCompleted = new Set();
+        let completionLog = [];
+        
+        data.forEach(item => {
+          if (item.value && typeof item.value === 'object') {
+            // Del 1-6 og Gantt har 'items' array
+            if (item.value.items && Array.isArray(item.value.items)) {
+              item.value.items.forEach(id => allCompleted.add(id));
+            }
+            // EQS data har eqs array
+            if (item.value.eqs && Array.isArray(item.value.eqs)) {
+              item.value.eqs.forEach(eqs => allCompleted.add(eqs));
+            }
+            // Funksjonsansvar har funksjoner array
+            if (item.value.funksjoner && Array.isArray(item.value.funksjoner)) {
+              item.value.funksjoner.forEach(f => allCompleted.add(f));
+            }
+            
+            // Legg til completion log hvis det finnes
+            if (item.value.completionLog && Array.isArray(item.value.completionLog)) {
+              completionLog = completionLog.concat(item.value.completionLog);
+            }
+          }
+        });
+        
+        return {
+          completed: Array.from(allCompleted),
+          log: completionLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+        };
+      } catch (error) {
+        console.error('Error fetching from Supabase:', error);
+        // Fallback til localStorage
+        return {
+          completed: [],
+          log: JSON.parse(localStorage.getItem('completionLog') || '[]')
+        };
+      }
+    }
+    
+    // Gjør funksjonen tilgjengelig globalt
+    window.getAllCompletedItems = getAllCompletedItems;
+  </script>
+
+<script type="text/babel">
     const { useState, useEffect } = React;
 
     function AnalyticsDashboard() {
@@ -568,13 +629,14 @@
       });
 
       useEffect(() => {
-        // Load data from localStorage
-        const completionLog = JSON.parse(localStorage.getItem('completionLog') || '[]');
-        
-        // Calculate stats
-        const totalCompleted = completionLog.length;
-        const streak = calculateStreak(completionLog);
-        const avgPerDay = calculateAvgPerDay(completionLog);
+        // Load data from Supabase
+        async function loadData() {
+          const { completed, log } = await window.getAllCompletedItems();
+          
+          // Calculate stats
+          const totalCompleted = completed.length;
+        const streak = calculateStreak(log);
+          const avgPerDay = calculateAvgPerDay(log);
         const remaining = 257 - totalCompleted;
         const daysToCompletion = avgPerDay > 0 ? Math.ceil(remaining / avgPerDay) : 0;
 
@@ -584,11 +646,14 @@
           currentStreak: streak,
           avgPerDay: avgPerDay.toFixed(1),
           daysToCompletion
-        });
+          });
 
-        // Initialize charts
+          // Initialize charts
         setTimeout(() => {
-          initCharts(completionLog);
+          initCharts(log, completed);
+        }
+        
+        loadData();
         }, 100);
       }, []);
 
@@ -623,7 +688,7 @@
         return log.length / daysDiff;
       }
 
-      function initCharts(log) {
+      function initCharts(log, completed) {
         // Progress Over Time Chart
         const progressCtx = document.getElementById('progressChart');
         if (progressCtx) {
@@ -664,16 +729,32 @@
           });
         }
 
-        // Module Progress Chart
+        // Module Progress Chart - with real data
         const moduleCtx = document.getElementById('moduleChart');
         if (moduleCtx) {
+          // Calculate real module progress
+          const modules = {
+            'Del 1': { total: 32, prefix: 'del1-' },
+            'Del 2': { total: 41, prefix: 'del2-' },
+            'Del 3': { total: 9, prefix: 'del3-' },
+            'Del 4': { total: 13, prefix: 'del4-' },
+            'Del 5': { total: 78, prefix: 'del5-' },
+            'Del 6': { total: 47, prefix: 'del6-' },
+            'Gantt': { total: 37, prefix: 'gantt-' }
+          };
+          
+          const moduleProgress = Object.entries(modules).map(([name, config]) => {
+            const completedCount = completed.filter(id => id.startsWith(config.prefix)).length;
+            return Math.round((completedCount / config.total) * 100);
+          });
+          
           new Chart(moduleCtx, {
             type: 'bar',
             data: {
               labels: ['Del 1', 'Del 2', 'Del 3', 'Del 4', 'Del 5', 'Del 6', 'Gantt'],
               datasets: [{
                 label: 'Fullført (%)',
-                data: [75, 60, 80, 45, 70, 50, 65],
+                data: moduleProgress,
                 backgroundColor: [
                   '#06b6d4',
                   '#a855f7',
